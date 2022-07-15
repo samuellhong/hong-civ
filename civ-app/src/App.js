@@ -2,7 +2,7 @@ import './App.css';
 
 function App() {
   function click(e) {
-    console.log("HIs");
+    console.log("HIstory");
     return (null)
   }
   return (
