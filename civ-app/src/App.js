@@ -1,6 +1,8 @@
 import './App.css';
 import React from 'react';
 import Header from './components/Header';
+import loadAll from './loadAll.js'
+import saveAll from './saveAll.js'
 
 class App extends React.Component{
 
@@ -29,12 +31,10 @@ class App extends React.Component{
       melonSeedPrice: (Math.random()*8+7),      //7->15
       stage: 0,
     }
-
+    
   }
   componentDidMount(){
-    if(JSON.parse(localStorage.getItem("money"))){
-      this.loadAll();
-    }
+    loadAll(this)
     
     setInterval(() => this.setState({cornSell: (Math.random()*2+0.01)}),10000);
     setInterval(() => this.setState({cornSeedPrice: (Math.random()*0.5+0.01)}),(Math.random()*3+7)*1000);
@@ -44,18 +44,10 @@ class App extends React.Component{
     setInterval(() => this.setState({mellonSeedPrice: (Math.random()*8+7)}),(Math.random()*3+7)*1000);
     setInterval(() => this.setState({science: this.state.science+1}),(Math.random()*3+7)*1000);
   }
-  loadAll(){
-    this.setState({money:JSON.parse(localStorage.getItem("money"))});
-    this.setState({stage:JSON.parse(localStorage.getItem("stage"))});
-    this.setState({cornSeedsCount:JSON.parse(localStorage.getItem("cornSeedsCount"))});    
-    this.setState({cornCount:JSON.parse(localStorage.getItem("cornCount"))});
-    this.setState({wheatSeedsCount:JSON.parse(localStorage.getItem("wheatSeedsCount"))});    
-    this.setState({wheatCount:JSON.parse(localStorage.getItem("wheatCount"))});
-    this.setState({melonSeedsCount:JSON.parse(localStorage.getItem("melonSeedsCount"))});    
-    this.setState({melonCount:JSON.parse(localStorage.getItem("melonCount"))});
-  }
   updateAll(){
+    saveAll(this);
     localStorage.setItem("money",JSON.stringify(this.state.money));
+    localStorage.setItem("science",JSON.stringify(this.state.science));
     localStorage.setItem("stage",JSON.stringify(this.state.stage));
     localStorage.setItem("cornSeedsCount",JSON.stringify(this.state.cornSeedsCount));
     localStorage.setItem("cornCount",JSON.stringify(this.state.cornCount));
@@ -152,7 +144,7 @@ class App extends React.Component{
             <div id="SeedsColumn">
               Seeds
               <br/>
-              <button className="buyCornSeedBtn" onClick={() => this.BuyCornSeed()} disabled = {this.state.money<this.state.cornSeedPrice}>CornSeed</button>
+              <button className="buySeedBtn" onClick={() => this.BuyCornSeed()} disabled = {this.state.money<this.state.cornSeedPrice}>CornSeed</button>
               <span> {this.state.cornSeedsCount}</span>
               <br/>
               Price: $
@@ -161,7 +153,7 @@ class App extends React.Component{
                 (this.state.stage > 0) && 
                 <>
                   <br/>
-                  <button className="buyCornSeedBtn" onClick={() => this.BuyWheatSeed()} disabled = {this.state.money<this.state.wheatSeedPrice}>WheatSeed</button>
+                  <button className="buySeedBtn" onClick={() => this.BuyWheatSeed()} disabled = {this.state.money<this.state.wheatSeedPrice}>WheatSeed</button>
                   <span> {this.state.wheatSeedsCount}</span>
                   <br/>
                   Price: $
@@ -172,7 +164,7 @@ class App extends React.Component{
                 (this.state.stage > 1) && 
                 <>
                   <br/>
-                  <button className="buyCornSeedBtn" onClick={() => this.BuyMelonSeed()} disabled = {this.state.money<this.state.melonSeedPrice}>MelonSeed</button>
+                  <button className="buySeedBtn" onClick={() => this.BuyMelonSeed()} disabled = {this.state.money<this.state.melonSeedPrice}>MelonSeed</button>
                   <span> {this.state.melonSeedsCount}</span>
                   <br/>
                   Price: $
@@ -183,20 +175,20 @@ class App extends React.Component{
             <div id="CropsColumn">
               Crops
               <br/>
-              <button className="growCornBtn" onClick={()=>this.GrowCorn()} disabled = {this.state.cornSeedsCount<=0}>GrowCorn</button>
+              <button className="growBtn" onClick={()=>this.GrowCorn()} disabled = {this.state.cornSeedsCount<=0}>GrowCorn</button>
               <span> {this.state.cornCount}</span>
               <br/>
-              <button className="sellCornBtn1" onClick={() => this.SellCorn()} disabled = {this.state.cornCount<=0}>SellCorn</button>
+              <button className="growBtn" onClick={() => this.SellCorn()} disabled = {this.state.cornCount<=0}>SellCorn</button>
               <span> </span>
               Sell: $
               <span>{this.state.cornSell.toFixed(2)}</span>
               {
                 (this.state.stage > 0) && 
                 <>
-                  <button className="growCornBtn" onClick={()=>this.GrowWheat()} disabled = {this.state.wheatSeedsCount<=0}>GrowWheat</button>
+                  <button className="growBtn" onClick={()=>this.GrowWheat()} disabled = {this.state.wheatSeedsCount<=0}>GrowWheat</button>
                   <span> {this.state.wheatCount}</span>
                   <br/>
-                  <button className="sellCornBtn1" onClick={() => this.SellWheat()} disabled = {this.state.wheatCount<=0}>SellWheat</button>
+                  <button className="growBtn" onClick={() => this.SellWheat()} disabled = {this.state.wheatCount<=0}>SellWheat</button>
                   <span> </span>
                   Sell: $
                   <span>{this.state.wheatSell.toFixed(2)}</span>
@@ -205,10 +197,10 @@ class App extends React.Component{
               {
                 (this.state.stage > 1) && 
                 <>
-                  <button className="growCornBtn" onClick={()=>this.GrowMelon()} disabled = {this.state.melonSeedsCount<=0}>GrowMelon</button>
+                  <button className="growBtn" onClick={()=>this.GrowMelon()} disabled = {this.state.melonSeedsCount<=0}>GrowMelon</button>
                   <span> {this.state.melonCount}</span>
                   <br/>
-                  <button className="sellCornBtn1" onClick={() => this.SellMelon()} disabled = {this.state.melonCount<=0}>SellMelon</button>
+                  <button className="growBtn" onClick={() => this.SellMelon()} disabled = {this.state.melonCount<=0}>SellMelon</button>
                   <span> </span>
                   Sell: $
                   <span>{this.state.melonSell.toFixed(2)}</span>

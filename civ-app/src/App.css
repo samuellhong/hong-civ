@@ -16,24 +16,24 @@
 .agricultureClass{
   font-Family: 'Times New Roman';
   font-weight: 400;
-  height: 200px;
+  height: 250px;
   width: 300px;
 }
 
 #SeedsColumn{
   width:40%;
-  height:200px;
+  height:180px;
   margin-right:150px;
 }
 
 #CropsColumn{
   width:60%;
-  height:200px;
+  height:180px;
   margin-left:120px;
-  margin-top:-200px;
+  margin-top:-180px;
 }
 
-.growCornBtn{
+.growBtn{
   border: 1px solid black;
   border-radius: 2px;
   font-family: helvetica, serif;
@@ -42,22 +42,14 @@
   width:70px;
 }
 
-.sellCornBtn1{
-  border: 1px solid black;
-  border-radius: 2px;
-  font-family: helvetica, serif;
-  background: -webkit-linear-gradient(top, white, gray);
-  background-color: rgb(191, 191, 191);
-  width:70px;
-}
-
-.buyCornSeedBtn{
+.buySeedBtn{
   border: 1px solid black;
   border-radius: 2px;
   font-variant-numeric: tabular-nums;
   background: -webkit-linear-gradient(top, white, gray);
   background-color: rgb(191, 191, 191);
   font-size: 11px;
+  width: 80px;
 }
 
 .App-logo {
