@@ -1,0 +1,9 @@
+Civilization Simulator
+
+Start with 20 land, where you can initially use to farm
+You can assign your land to be farm land
+You can buy land
+Then you can buy farmers and traders for gold to automatically grow early economy
+
+Then you can use science to learn early game science divisions (animal husbandry/mining)
+You can also use science to improve farmers/traders/etc...

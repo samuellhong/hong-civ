@@ -5,6 +5,15 @@ export default function loadAll(ts){
     ts.setState({money:JSON.parse(localStorage.getItem("money"))});
     ts.setState({science:JSON.parse(localStorage.getItem("science"))});
     ts.setState({population:JSON.parse(localStorage.getItem("population"))});
+    ts.setState({unusedPopulation:JSON.parse(localStorage.getItem("unusedPopulation"))});
+
+    ts.setState({land:JSON.parse(localStorage.getItem("land"))});
+    ts.setState({unusedLand:JSON.parse(localStorage.getItem("unusedLand"))});
+    ts.setState({landPrice:JSON.parse(localStorage.getItem("landPrice"))});
+
+    ts.setState({farmLand:JSON.parse(localStorage.getItem("farmLand"))});
+    ts.setState({unusedFarmLand:JSON.parse(localStorage.getItem("unusedFarmLand"))});
+
     ts.setState({stage:JSON.parse(localStorage.getItem("stage"))});
     ts.setState({cornSeedsCount:JSON.parse(localStorage.getItem("cornSeedsCount"))});    
     ts.setState({cornCount:JSON.parse(localStorage.getItem("cornCount"))});

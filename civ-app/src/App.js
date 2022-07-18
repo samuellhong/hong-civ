@@ -11,8 +11,16 @@ class App extends React.Component{
     this.state= {
       money: 0,
       population: 0,
+      unusedPopulation: 0,
       stage: 0,
       science: 0,
+      land: 20,
+      landPrice: 5,
+      
+      farmLand:0,
+      unusedFarmLand:0,
+
+      unusedLand: 20,
       cornSeedsCount: 10,
       wheatSeedsCount: 0,
       melonSeedsCount: 0,
@@ -23,14 +31,16 @@ class App extends React.Component{
       cornGrowChance: 0.7,
       wheatGrowChance: 0.6,
       melonGrowChance: 0.5,
-      cornSell: (Math.random()*2+0.01),         //0->2
-      cornSeedPrice: (Math.random()*0.5+0.01),  //0->0.5
-      wheatSell: (Math.random()*5+5),           //5->10
-      wheatSeedPrice: (Math.random()*3+2),      //2->5
-      melonSell: (Math.random()*10+25),         //25->35
-      melonSeedPrice: (Math.random()*8+7),      //7->15
+      cornSell: (Math.random()*.2+0.11),        //0.11 -> 0.31
+      cornSeedPrice: (Math.random()*.1+0.01),   //0.01 -> 0.11 
+      wheatSell: (Math.random()+1.00),          //1.01 -> 2.00
+      wheatSeedPrice: (Math.random()*.3+.31),   //0.31 -> 0.61
+      melonSell: (Math.random()*4+4.01),        //4.01 -> 7.96
+      melonSeedPrice: (Math.random()*2+2.01),   //2.01 -> 3.99
+      buySeedRate: 1,
+      growSeedRate: 1,
 
-      farmerPrice: 700,
+      farmerPrice: .300,
       totalFarmers: 0,
       unusedFarmers: 0,
       cornFarmers: 0,
@@ -38,179 +48,235 @@ class App extends React.Component{
       melonFarmers: 0,
       farmerSpeed: 5,
 
-      traderPrice: 2000,
+      traderPrice: 1000,
       totalTraders: 0,
       traderSpeed: 2,
     }
     
-    
   }
   componentDidMount(){
-    
-    if (JSON.parse(localStorage.getItem("money"))){
+    //saveAll(this.state);
+    if (localStorage.getItem("traderPrice") !== "undefined"){
       loadAll(this);
     }
-    
-    saveAll(this);
-    
-    setInterval(() => this.setState({cornSell: (Math.random()*2+0.01)}),10000, function(){this.updateAll();});
-    setInterval(() => this.setState({cornSeedPrice: (Math.random()*0.5+0.01)}),(Math.random()*3+7)*1000, function(){this.updateAll();});
-    setInterval(() => this.setState({wheatSell: (Math.random()*5+5)}),(Math.random()*3+7)*1000, function(){this.updateAll();});
-    setInterval(() => this.setState({wheatSeedPrice: (Math.random()*3+2)}),(Math.random()*3+7)*1000, function(){this.updateAll();});
-    setInterval(() => this.setState({melonSell: (Math.random()*10+25)}),(Math.random()*3+7)*1000, function(){this.updateAll();});
-    setInterval(() => this.setState({melonSeedPrice: (Math.random()*8+7)}),(Math.random()*3+7)*1000, function(){this.updateAll();});
+    else{
+      saveAll(this.state);
+      
+    }    
+        
+    setInterval(() => this.setState({cornSell: (Math.random()/5+0.11)}),(Math.random()*3+7)*1000, function(){this.updateAll();});
+    setInterval(() => this.setState({cornSeedPrice: (Math.random()/10+0.01)}),(Math.random()*3+7)*1000, function(){this.updateAll();});
+    setInterval(() => this.setState({wheatSell: (Math.random()+1.00)}),(Math.random()*3+7)*1000, function(){this.updateAll();});
+    setInterval(() => this.setState({wheatSeedPrice: (Math.random()*.3+.31)}),(Math.random()*3+7)*1000, function(){this.updateAll();});
+    setInterval(() => this.setState({melonSell: (Math.random()*4+4.01)}),(Math.random()*3+7)*1000, function(){this.updateAll();});
+    setInterval(() => this.setState({melonSeedPrice: (Math.random()*2+2.01)}),(Math.random()*3+7)*1000, function(){this.updateAll();});
     
     this.scienceInterval = setInterval(() => this.setState({science: this.state.science+this.state.population}),(Math.random()*3+7)*1000, function(){this.updateAll();});
-
-    this.cornFarmerInterval = setInterval(() => this.automateCorn(),this.state.farmerSpeed*1000/(this.state.cornFarmers+1), function(){this.updateAll();});
-    this.wheatFarmerInterval = setInterval(() => this.automateWheat(),this.state.farmerSpeed*1000/(this.state.wheatFarmers+1), function(){this.updateAll();});
-    this.melonFarmerInterval = setInterval(() => this.automateMelon(),this.state.farmerSpeed*1000/(this.state.melonFarmers+1), function(){this.updateAll();});
     
-    this.traderInterval = setInterval(() => this.automateTrade(),this.state.tradeSpeed*1000/(this.state.totalTraders+1), function(){this.updateAll();});
+    this.cornFarmerInterval = setInterval(() => this.automateCorn(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.cornFarmers-1)), function(){this.updateAll();});
+    this.wheatFarmerInterval = setInterval(() => this.automateWheat(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.wheatFarmers-1)), function(){this.updateAll();});
+    this.melonFarmerInterval = setInterval(() => this.automateMelon(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.melonFarmers-1)), function(){this.updateAll();});
+    this.traderInterval = setInterval(() => this.automateTrade(),this.state.traderSpeed*1000/(Math.pow(2,this.state.totalTraders-1)), function(){this.updateAll();});
+    
   }
 
   updateAll(){
-    if(this.state.money >=50 && this.state.stage === 0){
-      this.setState({stage:1});
-    }
-    if(this.state.money >=200 && this.state.stage===1){
-      this.setState({stage:2});
-    }
-    if(this.state.money >=500 && this.state.stage===2){
-      this.setState({stage:3});
-    }
-    if(this.state.money >=1000 && this.state.stage===3){
+    if(this.state.money >=.200 && this.state.stage<=2){
       this.setState({stage:4});
     }
-    
+    if(this.state.money >=5 && this.state.stage === 0){
+      this.setState({stage:1});
+    }
+    if(this.state.money >=20 && this.state.stage===1){
+      this.setState({stage:2});
+    }
+    if(this.state.money >=100 && this.state.stage===2){
+      this.setState({stage:3});
+    }
+    if(this.state.money >=800 && this.state.stage===3){
+      this.setState({stage:4});
+    }
+    /**
     clearInterval(this.cornFarmerInterval);
     clearInterval(this.wheatFarmerInterval);
     clearInterval(this.melonFarmerInterval);
     clearInterval(this.traderInterval);
-    this.cornFarmerInterval = setInterval(() => this.automateCorn(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.cornFarmers)), function(){this.updateAll();});
-    this.wheatFarmerInterval = setInterval(() => this.automateWheat(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.wheatFarmers)), function(){this.updateAll();});
-    this.melonFarmerInterval = setInterval(() => this.automateMelon(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.melonFarmers)), function(){this.updateAll();});
-    this.traderInterval = setInterval(() => this.automateTrade(),this.state.traderSpeed*1000/(Math.pow(2,this.state.totalTraders)), function(){this.updateAll();});
-
-    saveAll(this);
+    this.cornFarmerInterval = setInterval(() => this.automateCorn(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.cornFarmers-1)), function(){this.updateAll();});
+    this.wheatFarmerInterval = setInterval(() => this.automateWheat(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.wheatFarmers-1)), function(){this.updateAll();});
+    this.melonFarmerInterval = setInterval(() => this.automateMelon(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.melonFarmers-1)), function(){this.updateAll();});
+    this.traderInterval = setInterval(() => this.automateTrade(),this.state.traderSpeed*1000/(Math.pow(2,this.state.totalTraders-1)), function(){this.updateAll();});
+**/
+    saveAll(this.state);
   }
   improveScience(value){
     this.setState({science:this.state.science + value})
+  }
+  nFormatter(num) {
+    if(num<1){
+      return num.toFixed(2);
+    }
+    const lookup = [
+      { value: 1, symbol: "" },
+      { value: 1e3, symbol: "E3" },
+      { value: 1e6, symbol: "E6" },
+      { value: 1e9, symbol: "E9" },
+      { value: 1e12, symbol: "E12" },
+      { value: 1e15, symbol: "E15" },
+      { value: 1e18, symbol: "E18" }
+    ];
+    const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+    var item = lookup.slice().reverse().find(function(item) {
+      return num >= item.value;
+    });
+    return item ? (num / item.value).toFixed(2).replace(rx, "$1") + item.symbol : "0";
+  }
+
+  BuyLand(){
+    if(this.state.landPrice > this.state.money){
+      return
+    }
+    this.setState({land:this.state.land + 1}, function(){this.updateAll();});
+    this.setState({unusedLand:this.state.unusedLand + 1}, function(){this.updateAll();});
+    this.setState({money:this.state.money - this.state.landPrice}, function(){this.updateAll();});
+    this.setState({landPrice:this.state.landPrice * (Math.random()*0.2+1)}, function(){this.updateAll();});
+
+  }
+  increaseFarmLand(){
+    this.setState({farmLand:this.state.farmLand + 1}, function(){this.updateAll();});
+    this.setState({unusedFarmLand:this.state.unusedFarmLand + 1}, function(){this.updateAll();});
+    this.setState({unusedLand:this.state.unusedLand - 1}, function(){this.updateAll();});
+  }
+  decreaseFarmLand(){
+    this.setState({farmLand:this.state.farmLand - 1}, function(){this.updateAll();});
+    this.setState({unusedFarmLand:this.state.unusedFarmLand - 1}, function(){this.updateAll();});
+    this.setState({unusedLand:this.state.unusedLand + 1}, function(){this.updateAll();});
   }
 
   ///////////////////////////////////////////////////////////////////
 
   GrowCorn=()=>{
-    if(this.cornSeedsCount <= 0){
-      return;
+    
+    for(let i = this.state.growSeedRate; i>0;i--){
+      if(i <= this.state.cornSeedsCount && this.state.unusedFarmLand >= i){
+        var successSeeds = 0;
+        for(let j = 0; j<i;j++){
+          if(Math.random()<=this.state.cornGrowChance){
+            successSeeds++;
+          }
+        }
+        this.setState({cornCount:this.state.cornCount + successSeeds}, function(){this.updateAll();});
+        this.setState({unusedFarmLand:this.state.unusedFarmLand - successSeeds}, function(){this.updateAll();});
+        this.setState({cornSeedsCount:this.state.cornSeedsCount - i}, function(){this.updateAll();});
+        return
+      }
     }
-    if(Math.random() < this.state.cornGrowChance){
-      this.setState({cornCount:this.state.cornCount + 1}, function(){this.updateAll();});
-    }
-    this.setState({cornSeedsCount:this.state.cornSeedsCount -1}, function(){this.updateAll();});
-    return
   }
   SellCorn=()=>{
     this.setState({money:this.state.money + this.state.cornSell}, function(){this.updateAll();})
-    
     this.setState({cornCount:this.state.cornCount - 1}, function(){this.updateAll();})
+    this.setState({unusedFarmLand:this.state.unusedFarmLand + 1}, function(){this.updateAll();});
     return
   }
-  BuyCornSeed = () =>{
-    if(this.state.cornSeedPrice > this.state.money){
-      return;
+  BuyCornSeed(){
+    for(let i = this.state.buySeedRate; i>0;i--){
+      if(this.state.cornSeedPrice * i <= this.state.money){
+        this.setState({money:this.state.money - (this.state.cornSeedPrice*i)});
+        this.setState({cornSeedsCount:this.state.cornSeedsCount +i}, function(){this.updateAll();});
+        return;
+      }
     }
-    this.setState({money:this.state.money - this.state.cornSeedPrice})
-    this.setState({cornSeedsCount:this.state.cornSeedsCount +1}, function(){this.updateAll();})
   }
   automateCorn(){
-    if (this.state.cornFarmers <= 0){
-      return;
+    if(this.state.cornFarmers<=0 || this.state.unusedFarmLand <= 0){
+      return
     }
-    if(this.state.money < this.state.cornSeedPrice){
-      if(this.state.cornSeedsCount <= 0){
-        return
-      }
-      this.setState({cornSeedsCount:this.state.cornSeedsCount - 1}, function(){this.updateAll();});
-    }
-    if(Math.random() < this.state.cornGrowChance){
-      this.setState({cornCount:this.state.cornCount + 1}, function(){this.updateAll();});
-    }
-    if(this.state.money>=this.state.cornSeedPrice){
-      this.setState({money:this.state.money - this.state.cornSeedPrice}, function(){this.updateAll();})
-    }
+    this.BuyCornSeed();
+    setTimeout(()=>{this.GrowCorn()},1);
+    return;
   }
 
   ///////////////////////////////////////////////////////////////////
 
   GrowWheat=()=>{
-    if(Math.random() < this.state.wheatGrowChance){
-      this.setState({wheatCount:this.state.wheatCount + 1})
+    for(let i = this.state.growSeedRate; i>0;i--){
+      if(i <= this.state.wheatSeedsCount && this.state.unusedFarmLand >= i){
+        var successSeeds = 0;
+        for(let j = 0; j<i;j++){
+          if(Math.random()<=this.state.wheatGrowChance){
+            successSeeds++;
+          }
+        }
+        this.setState({wheatCount:this.state.wheatCount + successSeeds}, function(){this.updateAll();});
+        this.setState({wheatSeedsCount:this.state.wheatSeedsCount - i}, function(){this.updateAll();});
+        this.setState({unusedFarmLand:this.state.unusedFarmLand - successSeeds}, function(){this.updateAll();});
+        return
+      }
     }
-    this.setState({wheatSeedsCount:this.state.wheatSeedsCount - 1}, function(){this.updateAll();})
-    return
   }
   SellWheat=()=>{
     this.setState({money:this.state.money + this.state.wheatSell}, function(){this.updateAll();})
     this.setState({wheatCount:this.state.wheatCount - 1}, function(){this.updateAll();})
+    this.setState({unusedFarmLand:this.state.unusedFarmLand + 1}, function(){this.updateAll();});
     return
   }
   BuyWheatSeed = () =>{
-    this.setState({money:this.state.money - this.state.wheatSeedPrice})
-    this.setState({wheatSeedsCount:this.state.wheatSeedsCount +1}, function(){this.updateAll();})
+    for(let i = this.state.buySeedRate; i>0;i--){
+      if(this.state.wheatSeedPrice * i <= this.state.money){
+        this.setState({money:this.state.money - (this.state.wheatSeedPrice*i)});
+        this.setState({wheatSeedsCount:this.state.wheatSeedsCount + i}, function(){this.updateAll();});
+        return;
+      }
+    }
   }
   automateWheat(){
-    if (this.state.wheatFarmers <= 0){
-      return;
+    if(this.state.wheatFarmers<=0 || this.state.unusedFarmLand <= 0){
+      return
     }
-    if(this.state.money < this.state.wheatSeedPrice){
-      if(this.state.wheatSeedsCount <= 0){
-        return
-      }
-      this.setState({wheatSeedsCount:this.state.wheatSeedsCount - 1}, function(){this.updateAll();});
-    }
-    if(Math.random() < this.state.wheatGrowChance){
-      this.setState({wheatCount:this.state.wheatCount + 1}, function(){this.updateAll();});
-    }
-    if(this.state.money>=this.state.wheatSeedPrice){
-      this.setState({money:this.state.money - this.state.wheatSeedPrice}, function(){this.updateAll();})
-    }
+    this.BuyWheatSeed();
+    setTimeout(()=>{this.GrowWheat()},100);
+    return;
   }
 
   ///////////////////////////////////////////////////////////////////
 
   GrowMelon=()=>{
-    if(Math.random() < this.state.melonGrowChance){
-      this.setState({melonCount:this.state.melonCount + 1})
+    for(let i = this.state.growSeedRate; i>0;i--){
+      if(i <= this.state.melonSeedsCount && this.state.unusedFarmLand >= i){
+        var successSeeds = 0;
+        for(let j = 0; j<i;j++){
+          if(Math.random()<=this.state.melonGrowChance){
+            successSeeds++;
+          }
+        }
+        this.setState({melonCount:this.state.melonCount + successSeeds}, function(){this.updateAll();});
+        this.setState({melonSeedsCount:this.state.melonSeedsCount - i}, function(){this.updateAll();});
+        this.setState({unusedFarmLand:this.state.unusedFarmLand - successSeeds}, function(){this.updateAll();});
+        return
+      }
     }
-    this.setState({melonSeedsCount:this.state.melonSeedsCount -1}, function(){this.updateAll();})
-    return
   }
   SellMelon=()=>{
     this.setState({money:this.state.money + this.state.melonSell})
     this.setState({melonCount:this.state.melonCount - 1}, function(){this.updateAll();})
+    this.setState({unusedFarmLand:this.state.unusedFarmLand + 1}, function(){this.updateAll();});
     return
   }
   BuyMelonSeed = () =>{
-    this.setState({money:this.state.money - this.state.melonSeedPrice})
-    this.setState({melonSeedsCount:this.state.melonSeedsCount +1}, function(){this.updateAll();})
+    for(let i = this.state.buySeedRate; i>0;i--){
+      if(this.state.melonSeedPrice * i <= this.state.money){
+        this.setState({money:this.state.money - (this.state.melonSeedPrice*i)});
+        this.setState({melonSeedsCount:this.state.melonSeedsCount + i}, function(){this.updateAll();});
+        return;
+      }
+    }
   }
   automateMelon(){
-    if (this.state.melonFarmers <= 0){
-      return;
+    if(this.state.melonFarmers<=0 || this.state.unusedFarmLand <= 0){
+      return
     }
-    if(this.state.money < this.state.melonSeedPrice){
-      if(this.state.melonSeedsCount <= 0){
-        return
-      }
-      this.setState({melonSeedsCount:this.state.melonSeedsCount - 1}, function(){this.updateAll();});
-    }
-    if(Math.random() < this.state.melonGrowChance){
-      this.setState({melonCount:this.state.melonCount + 1}, function(){this.updateAll();});
-    }
-    if(this.state.money>=this.state.melonSeedPrice){
-      this.setState({money:this.state.money - this.state.melonSeedPrice}, function(){this.updateAll();})
-    }
+    this.BuyMelonSeed();
+    setTimeout(()=>{this.GrowMelon()},100);
+    return;
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -219,7 +285,7 @@ class App extends React.Component{
     this.setState({money:this.state.money - this.state.farmerPrice})
     this.setState({totalFarmers:this.state.totalFarmers + 1})
     this.setState({unusedFarmers:this.state.unusedFarmers + 1})
-    this.setState({farmerPrice:this.state.farmerPrice * (1+Math.random()*0.5)})
+    this.setState({farmerPrice:this.state.farmerPrice * (1+Math.random()*0.3)})
     this.setState({population:this.state.population + 1}, function(){this.updateAll();})
   }
   RetractCornFarmer = () =>{
@@ -227,8 +293,7 @@ class App extends React.Component{
     this.setState({unusedFarmers:this.state.unusedFarmers + 1}, function(){this.updateAll();})
     clearInterval(this.cornFarmerInterval);
     if(this.state.cornFarmers-1 >0){
-      this.cornFarmerInterval = setInterval(() => this.automateCorn(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.cornFarmers)), function(){this.updateAll();});
-
+      this.cornFarmerInterval = setInterval(() => this.automateCorn(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.cornFarmers-2)), function(){this.updateAll();});
     }
   }
   DeployCornFarmer = () =>{
@@ -236,13 +301,14 @@ class App extends React.Component{
     this.setState({unusedFarmers:this.state.unusedFarmers - 1}, function(){this.updateAll();})
     clearInterval(this.cornFarmerInterval);
     this.cornFarmerInterval = setInterval(() => this.automateCorn(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.cornFarmers)), function(){this.updateAll();});
+
   }
   RetractWheatFarmer = () =>{
     this.setState({wheatFarmers:this.state.wheatFarmers - 1})
     this.setState({unusedFarmers:this.state.unusedFarmers + 1}, function(){this.updateAll();})
     clearInterval(this.wheatFarmerInterval);
     if(this.state.wheatFarmers-1 >0){
-      this.wheatFarmerInterval = setInterval(() => this.automateWheat(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.wheatFarmers)), function(){this.updateAll();});
+      this.wheatFarmerInterval = setInterval(() => this.automateWheat(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.wheatFarmers-2)), function(){this.updateAll();});
     }
   }
   DeployWheatFarmer = () =>{
@@ -256,14 +322,14 @@ class App extends React.Component{
     this.setState({unusedFarmers:this.state.unusedFarmers + 1}, function(){this.updateAll();})
     clearInterval(this.melonFarmerInterval);
     if(this.state.melonFarmers-1 >0){
-      this.melonFarmerInterval = setInterval(() => this.automateWheat(),this.state.farmerSpeed*1000/(2,Math.pow(this.state.melonFarmers)), function(){this.updateAll();});
+      this.melonFarmerInterval = setInterval(() => this.automateMelon(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.melonFarmers-2)), function(){this.updateAll();});
     }
   }
   DeployMelonFarmer = () =>{
     this.setState({melonFarmers:this.state.melonFarmers + 1}, function(){this.updateAll();})
     this.setState({unusedFarmers:this.state.unusedFarmers - 1}, function(){this.updateAll();})
     clearInterval(this.melonFarmerInterval);
-    this.melonFarmerInterval = setInterval(() => this.automateWheat(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.melonFarmers)), function(){this.updateAll();});
+    this.melonFarmerInterval = setInterval(() => this.automateMelon(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.melonFarmers)), function(){this.updateAll();});
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -271,10 +337,10 @@ class App extends React.Component{
   BuyTrader = () =>{
     this.setState({money:this.state.money - this.state.traderPrice})
     this.setState({totalTraders:this.state.totalTraders + 1})
-    this.setState({traderPrice:this.state.traderPrice * (1+Math.random()*0.2)})
+    this.setState({traderPrice:this.state.traderPrice * (1+Math.random()*0.3)})
     this.setState({population:this.state.population + 1}, function(){this.updateAll();})
     clearInterval(this.traderInterval);
-    this.traderInterval = setInterval(() => this.automateTrade(),this.state.traderSpeed*1000/(Math.pow(2,this.state.totalTraders)), function(){this.updateAll();});
+    this.traderInterval = setInterval(() => this.automateTrade(),this.state.traderSpeed*1000/(Math.pow(2,this.state.totalTraders-1)), function(){this.updateAll();});
   }
   automateTrade = () =>{
     if(this.state.totalTraders>0){
@@ -298,19 +364,29 @@ class App extends React.Component{
         <Header/>
         <div id = "InfoBar">
           <h2 style = {{fontSize: '1.5rem',fontWeight:'bold', fontFamily:'Times New Roman'}}>
-            Money:
-            <span> {this.state.money.toFixed(2)}g</span>
+            Gold:
+            <span> {this.state.money.toFixed(2)}</span>
             <br/>
-            Science: 
-            <span> {this.state.science}bp</span>
+            <span> Population: {this.state.population} ({this.state.unusedPopulation})</span>
             <br/>
-            Population: 
-            <span> {this.state.population}</span>
+            <span> Land: {this.state.land} ({this.state.unusedLand})</span>
+            <br/>
           </h2>
         </div>
-        <div id = "leftColumn">
-            <b>Agriculture</b>
-          <div className = "agricultureClass">
+        <div id = "AColumn">
+          <button className="buySeedBtn" onClick={() => this.BuyLand()} disabled = {this.state.money<this.state.landPrice}>Land</button>
+          <br/>
+          Cost:
+          <span> {this.state.landPrice.toFixed(2)}</span>
+          <br/>
+          <br/>
+          <b>Farming</b>
+          <div className = "farmingClass">
+            <span>Land: </span>
+            <button className="decreaseBtn" onClick={()=> this.decreaseFarmLand()} disabled = {this.state.farmLand<=0 || this.state.unusedFarmLand<=0}>-</button>
+            <span> {this.state.farmLand} </span>
+            <button className="decreaseBtn" onClick={() => this.increaseFarmLand()} disabled = {this.state.unusedLand <=0}>+</button>
+            <span> ({this.state.unusedFarmLand}) </span>
             <div id="SeedsColumn">
               Seeds
               <br/>
@@ -318,7 +394,7 @@ class App extends React.Component{
               <span> {this.state.cornSeedsCount}</span>
               <br/>
               Price:
-              <span> {this.state.cornSeedPrice.toFixed(2)}g</span>
+              <span> {this.nFormatter(this.state.cornSeedPrice)}g</span>
               {
                 (this.state.stage > 0) && 
                 <>
@@ -338,7 +414,7 @@ class App extends React.Component{
                   <span> {this.state.melonSeedsCount}</span>
                   <br/>
                   Price:
-                  <span>{this.state.melonSeedPrice.toFixed(2)}g</span>
+                  <span> {this.state.melonSeedPrice.toFixed(2)}g</span>
                 </>
               }
             </div>
@@ -422,9 +498,21 @@ class App extends React.Component{
             
           </div>
         </div>
+        <div id = "BColumn">
+        {
+          (this.state.population > 0) &&
+          <>
+            <b>Technology</b>
+            <div className = "scienceColumn">
+              Science:
+              <span> {this.state.science}</span>
+            </div>
+          </>
+        }
+        
+        </div>
       </>
     );
-
   }
 }
 export default App;

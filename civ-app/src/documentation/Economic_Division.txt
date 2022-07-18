@@ -1,0 +1,16 @@
+Economic Division:
+Farming
+    - Seeds/Crops (Corn/Wheat/Melon)
+    - Farmers
+    - Traders
+
+LiveStock (Animal Husbandry Technology)
+    - Animals (Chicken/Pig/Cattle/Horses)
+    - Herders
+    - Traders
+    
+Mining (Mining)
+    - Materials (Wood/Stone/Bronze/Iron)
+    - Jack
+    - Miners
+    - Traders

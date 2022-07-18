@@ -8,29 +8,42 @@
   background: black;
 }
 
-#leftColumn{
+#AColumn{
   font-Family: 'Times New Roman';
   margin-left: 5px;
   width: 300px;
 }
+#BColumn{
+  font-Family: 'Times New Roman';
+  margin-left: 315px;
+  width: 300px;
+  height: 700px;
+  margin-top: -440px;
+}
 
-.agricultureClass{
+.farmingClass{
   border-style: ridge;
   font-weight: 400;
-  height: 350px;
+  height: 370px;
   width: 300px;
+}
+.scienceColumn{
+  border-style: ridge;
+  font-weight: 400;
+  height: 500px;
+  width: 100%;;
 }
 
 #SeedsColumn{
-  width:40%;
+  width:50%;
   height:180px;
   margin-right:150px;
 }
 
 #CropsColumn{
-  width:60%;
+  width:50%;
   height:180px;
-  margin-left:120px;
+  margin-left:150px;
   margin-top:-180px;
 }
 
