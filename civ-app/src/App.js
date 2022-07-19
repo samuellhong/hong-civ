@@ -1,9 +1,9 @@
 import './App.css';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import {game} from './variables/vars.js';
 import Header from './components/Header';
-import loadAll from './loadAll.js'
-import saveAll from './saveAll.js'
 
+/** 
 class App extends React.Component{
 
   constructor(props){
@@ -55,6 +55,14 @@ class App extends React.Component{
     
   }
   componentDidMount(){
+    if (localStorage.getItem("game") === "undefined"){
+      localStorage.setItem("game",JSON.stringify(game));
+    }
+    else{
+      this.loadGame = JSON.parse(localStorage.getItem("game"));
+      console.log(this.loadGame);
+    }    
+    
     //saveAll(this.state);
     if (localStorage.getItem("traderPrice") !== "undefined"){
       loadAll(this);
@@ -105,7 +113,7 @@ class App extends React.Component{
     this.wheatFarmerInterval = setInterval(() => this.automateWheat(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.wheatFarmers-1)), function(){this.updateAll();});
     this.melonFarmerInterval = setInterval(() => this.automateMelon(),this.state.farmerSpeed*1000/(Math.pow(2,this.state.melonFarmers-1)), function(){this.updateAll();});
     this.traderInterval = setInterval(() => this.automateTrade(),this.state.traderSpeed*1000/(Math.pow(2,this.state.totalTraders-1)), function(){this.updateAll();});
-**/
+
     saveAll(this.state);
   }
   improveScience(value){
@@ -178,6 +186,9 @@ class App extends React.Component{
     return
   }
   BuyCornSeed(){
+    this.loadGame.money += 1;
+    localStorage.setItem("game",JSON.stringify(this.loadGame));
+    console.log(JSON.parse(localStorage.getItem("game")));
     for(let i = this.state.buySeedRate; i>0;i--){
       if(this.state.cornSeedPrice * i <= this.state.money){
         this.setState({money:this.state.money - (this.state.cornSeedPrice*i)});
@@ -515,4 +526,399 @@ class App extends React.Component{
     );
   }
 }
+*/
+const App = () =>{
+  
+  var loadGame;
+  localStorage.setItem("game",JSON.stringify(game));
+  if (localStorage.getItem("game") === "undefined"){
+    localStorage.setItem("game",JSON.stringify(game));
+  }
+  loadGame = JSON.parse(localStorage.getItem("game"));
+  const [stage, setStage] = useState(loadGame.stage);
+  
+  const stageIncrements = [5,20,100,800];
+
+  function saveVar(){
+    //if(loadGame.money >=.200 && stage<=2){
+    //  loadGame.stage =4;
+    //  setStage(loadGame.stage);
+    //}
+    if(loadGame.money >= stageIncrements[stage]){
+      loadGame.stage +=1;
+      setStage(loadGame.stage);
+    }
+    localStorage.setItem("game",JSON.stringify(loadGame));
+    document.getElementById("money").innerHTML = loadGame.money.toFixed(2);
+    document.getElementById("population").innerHTML = loadGame.population;
+    document.getElementById("unusedPopulation").innerHTML = loadGame.unusedPopulation;
+    //document.getElementById("science").innerHTML = loadGame.science;
+    document.getElementById("land").innerHTML = loadGame.land;
+    document.getElementById("unusedLand").innerHTML = loadGame.unusedLand;
+    document.getElementById("landPrice").innerHTML = loadGame.landPrice.toFixed(2);
+    document.getElementById("farmLand").innerHTML = loadGame.farmLand;
+
+    document.getElementById("cornSeedsCount").innerHTML = loadGame.cornSeedsCount;
+    document.getElementById("cornCount").innerHTML = loadGame.cornCount;
+    if(stage >=1){
+      document.getElementById("wheatSeedsCount").innerHTML = loadGame.wheatSeedsCount;
+      document.getElementById("wheatCount").innerHTML = loadGame.wheatCount;
+    }
+    if(stage >= 2){
+      document.getElementById("melonSeedsCount").innerHTML = loadGame.melonSeedsCount;
+      document.getElementById("melonCount").innerHTML = loadGame.melonCount;
+    }
+    if(stage >= 3){
+      document.getElementById("farmers").innerHTML = loadGame.farmers;
+      document.getElementById("cornFarmers").innerHTML = loadGame.cornFarmers;
+      document.getElementById("wheatFarmers").innerHTML = loadGame.wheatFarmers;
+      document.getElementById("melonFarmers").innerHTML = loadGame.melonFarmers;
+    }
+    if(stage >= 4){
+      document.getElementById("totalTrader").innerHTML = loadGame.totalTrader;
+    }
+  }
+
+  useEffect(() => {
+    const cornSeedInterval = setInterval(() => {
+      adjustCornSeedPrice();
+    },(Math.random()*3+7)*1000);
+    if(stage>=1){}
+    const wheatSeedInterval = setInterval(() => {
+      adjustWheatSeedPrice();
+    },(Math.random()*3+7)*1000);
+    const melonSeedInterval = setInterval(() => {
+      adjustMelonSeedPrice();
+    },(Math.random()*3+7)*1000);
+    const cornSellInterval = setInterval(() => {
+      adjustCornSell();
+    },(Math.random()*3+7)*1000);
+    const wheatSellInterval = setInterval(() => {
+      adjustWheatSell();
+    },(Math.random()*3+7)*1000);
+    const melonSellInterval = setInterval(() => {
+      adjustMelonSell();
+    },(Math.random()*3+7)*1000);
+    return()=>{
+      clearInterval(cornSeedInterval);
+      clearInterval(wheatSeedInterval);
+      clearInterval(melonSeedInterval);
+      clearInterval(cornSellInterval);
+      clearInterval(wheatSellInterval);
+      clearInterval(melonSellInterval);
+    }
+  })
+  function adjustCornSeedPrice(){
+    loadGame.cornSeedPrice = (Math.random()*.1+0.01);
+    document.getElementById("cornSeedPrice").innerHTML = loadGame.cornSeedPrice.toFixed(2);
+  } 
+  function adjustWheatSeedPrice(){
+    if(stage>=1){
+      var wheatSeedPrice = document.getElementById("wheatSeedPrice");
+      loadGame.wheatSeedPrice = (Math.random()*.3+.31);
+      wheatSeedPrice.innerHTML = loadGame.wheatSeedPrice.toFixed(2);
+    }
+    
+  } 
+  function adjustMelonSeedPrice(){
+    if(stage >=2){
+      var melonSeedPrice = document.getElementById("melonSeedPrice");
+      loadGame.melonSeedPrice = (Math.random()*2+2.01);
+      melonSeedPrice.innerHTML = loadGame.melonSeedPrice.toFixed(2);
+    }
+  } 
+  function adjustCornSell(){
+    loadGame.cornSell = (Math.random()*.2+0.11);
+    document.getElementById("cornSell").innerHTML = loadGame.cornSell.toFixed(2);
+  }
+  function adjustWheatSell(){
+    if(stage >=1){
+      loadGame.wheatSell = (Math.random()+1.00);
+      document.getElementById("wheatSell").innerHTML = loadGame.wheatSell.toFixed(2);
+    }
+    
+  }
+  function adjustMelonSell(){
+    if(stage >=2){
+      loadGame.melonSell = (Math.random()*4+4.01);
+      document.getElementById("melonSell").innerHTML = loadGame.melonSell.toFixed(2);
+    }
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  function incrementFarmLand(x){
+    if(x === -1 && (loadGame.farmLand <= 0 || loadGame.unusedFarmLand <= 0)){
+      return;
+    }
+    if(x === 1 && (loadGame.unusedLand < 0)){
+      return;
+    }
+    loadGame.unusedLand -= x;
+    //loadGame.land -= x;
+    loadGame.farmLand += x;
+    loadGame.unusedFarmLand += x
+    saveVar();
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  function buyLand(){
+    if (loadGame.landPrice <= loadGame.money){
+      loadGame.land += 1;
+      loadGame.unusedLand += 1;
+      loadGame.money -= loadGame.landPrice;
+      loadGame.landPrice *= (Math.random()*0.2+1);
+      saveVar()
+    }
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  function buyCornSeed(){
+    if(loadGame.cornSeedPrice*loadGame.seedBundle <= loadGame.money){
+      loadGame.cornSeedsCount += loadGame.seedBundle;
+      loadGame.money -= loadGame.cornSeedPrice*loadGame.seedBundle;
+      saveVar();
+    }
+  }
+  function growCorn(){
+    if(loadGame.cornSeedsCount > 0 && loadGame.unusedFarmLand > 0){
+      loadGame.cornSeedsCount -= 1;
+      if(Math.random() < loadGame.cornGrowChance){
+        loadGame.cornCount += 1;
+        loadGame.unusedFarmLand -=1;
+      }
+      saveVar();
+    }
+  }
+  function sellCorn(){
+    if(loadGame.cornCount > 0){
+      loadGame.cornCount -= 1;
+      loadGame.money += loadGame.cornSell;
+      loadGame.unusedFarmLand +=1;
+      saveVar();
+    }
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  function buyWheatSeed(){
+    if(loadGame.wheatSeedPrice*loadGame.seedBundle <= loadGame.money){
+      loadGame.wheatSeedsCount += loadGame.seedBundle;
+      loadGame.money -= loadGame.wheatSeedPrice*loadGame.seedBundle;
+      saveVar();
+    }
+    
+  }
+  function growWheat(){
+    if(loadGame.wheatSeedsCount > 0 && loadGame.unusedFarmLand > 0 ){
+      loadGame.wheatSeedsCount -= 1;
+      if(Math.random() < loadGame.wheatGrowChance){
+        loadGame.wheatCount += 1;
+        loadGame.unusedFarmLand -=1;
+      }
+      saveVar();
+    }
+  }
+  function sellWheat(){
+    if(loadGame.wheatCount > 0){
+      loadGame.wheatCount -= 1;
+      loadGame.money += loadGame.wheatSell;
+      loadGame.unusedFarmLand +=1;
+      saveVar();
+    }
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  function buyMelonSeed(){
+    if(loadGame.melonSeedPrice*loadGame.seedBundle <= loadGame.money){
+      loadGame.melonSeedsCount += loadGame.seedBundle;
+      loadGame.money -= loadGame.melonSeedPrice*loadGame.seedBundle;
+      saveVar();
+    }
+    
+  }
+  function growMelon(){
+    if(loadGame.melonSeedsCount > 0 && loadGame.unusedFarmLand > 0){
+      loadGame.melonSeedsCount -= 1;
+      if(Math.random() < loadGame.melonGrowChance){
+        loadGame.melonCount += 1;
+        loadGame.unusedFarmLand -=1;
+      }
+      saveVar();
+    }
+  }
+  function sellMelon(){
+    if(loadGame.melonCount > 0){
+      loadGame.melonCount -= 1;
+      loadGame.money += loadGame.melonSell;
+      loadGame.unusedFarmLand +=1;
+      saveVar();
+    }
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  return(
+    <>
+      <Header/>
+      <h2 style = {{fontSize: '1.5rem',fontWeight:'bold', fontFamily:'Times New Roman'}}>
+        Gold:
+        <span id = "money"> {loadGame.money.toFixed(2)}</span>
+        <br/>
+        Population:
+        <span id = "population"> {loadGame.population}</span>
+        <span> (</span>
+        <span id = "unusedPopulation">{loadGame.unusedPopulation}</span>
+        <span>)</span>
+        <br/>
+        Land:<span> </span>
+        <span id = "land">{loadGame.land}</span>
+        <span> (</span>
+        <span id = "unusedLand">{loadGame.unusedLand}</span>
+        <span>)</span>
+      </h2>
+      <button className = "buySeed" onClick ={()=>buyLand()}>Land</button>
+      <br/>
+      <span id = "landPrice" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>Price: {loadGame.landPrice.toFixed(2)}g</span>
+      <br/>
+      <br/>
+      <div id = "mainDiv">
+        <div id = "columnA" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>
+          
+          <div id = "farmDiv">
+            <b>Agriculture</b> <span> </span>
+            <button className = "increment" onClick = {()=>incrementFarmLand(-1)}>-</button> <span> </span>
+            <span id = "farmLand">{loadGame.farmLand}</span> <span> </span>
+            <button className = "increment" onClick = {()=>incrementFarmLand(1)}>+</button> <span> </span>
+            <hr/>
+            <div id = "seedDiv">
+              <button className = "buySeed" onClick = {()=>buyCornSeed()}>CornSeed</button> <span> </span>
+              <span id = "cornSeedsCount"> {loadGame.cornSeedsCount}</span>
+              <br/>
+              Price:<span> </span>
+              <span id = "cornSeedPrice"> {loadGame.cornSeedPrice.toFixed(2)}</span>
+              g
+              <br/>
+              {
+                (stage >= 1) && 
+                <>
+                  <button className = "buySeed" onClick = {()=>buyWheatSeed()}>WheatSeed</button> <span> </span>
+                  <span id = "wheatSeedsCount"> {loadGame.wheatSeedsCount}</span>
+                  <br/>
+                  Price:<span> </span>
+                  <span id = "wheatSeedPrice"> {loadGame.wheatSeedPrice.toFixed(2)}</span>
+                  g
+                </>
+              }
+              
+              <br/>
+              {
+                (stage >= 2) &&
+                <>
+                  <button className = "buySeed" onClick = {()=>buyMelonSeed()}>MelonSeed</button> <span> </span>
+                  <span id = "melonSeedsCount"> {loadGame.melonSeedsCount}</span>
+                  <br/>
+                  Price:<span> </span>
+                  <span id = "melonSeedPrice"> {loadGame.melonSeedPrice.toFixed(2)}</span>
+                  g
+                </>
+              }
+              
+            </div>
+            
+            <div id = "cropDiv">
+              <button className = "growCrop" onClick = {()=>growCorn()}>GrowCorn</button> <span> </span>
+              <span id = "cornCount"> {loadGame.cornCount}</span>
+              <br/>
+              <button className = "growCrop" onClick = {()=>sellCorn()}>SellCorn</button> <span> </span>
+              <span> </span>
+              <span id = "cornSell"> {loadGame.cornSell.toFixed(2)}</span>
+              g
+              <br/>
+              {
+                (stage>=1) &&
+                <>
+                  <button className = "growCrop" onClick = {()=>growWheat()}>GrowWheat</button> <span> </span>
+                  <span id = "wheatCount"> {loadGame.wheatCount}</span>
+                  <br/>
+                  <button className = "growCrop" onClick = {()=>sellWheat()}>SellWheat</button> <span> </span>
+                  <span id = "wheatSell"> {loadGame.wheatSell.toFixed(2)}</span>
+                  g
+                </> 
+              }
+              <br/>
+              {
+                (stage>=2) &&
+                <>
+                  <button className = "growCrop" onClick = {()=>growMelon()}>GrowMelon</button> <span> </span>
+                  <span id = "melonCount"> {loadGame.melonSeedsCount}</span>
+                  <br/>
+                  <button className = "growCrop" onClick = {()=>sellMelon()}>SellMelon</button> <span> </span>
+                  <span id = "melonSell"> {loadGame.melonSell.toFixed(2)}</span>
+                g
+                </>
+              }
+              
+            </div>
+
+            <div id = "farmerDiv">
+            {
+              (stage >= 3) &&
+              <>
+                <button className = "buySeed">Farmer</button> <span> </span>
+                <span id = "unusedFarmers">{loadGame.unusedFarmers}</span> <span> </span>
+                <br/>
+                Corn Farmers:<span> </span>
+                <button className = "increment" >-</button> <span> </span>
+                <span id = "cornFarmers">{loadGame.cornFarmers}</span> <span> </span>
+                <button className = "increment" >+</button> <span> </span>
+                <br/>
+                Wheat Farmers:<span> </span>
+                <button className = "increment" >-</button> <span> </span>
+                <span id = "wheatFarmers">{loadGame.wheatFarmers}</span> <span> </span>
+                <button className = "increment" >+</button> <span> </span>
+                <br/>
+                Melon Farmers:<span> </span>
+                <button className = "increment" >-</button> <span> </span>
+                <span id = "MelonFarmers">{loadGame.melonFarmers}</span> <span> </span>
+                <button className = "increment" >+</button> <span> </span>
+              </>
+            }
+            </div>
+
+            <div id = "traderDiv">
+            {
+              (stage >= 4) &&
+              <>
+                <button className = "buySeed">Trader</button> <span> </span>
+                <span id = "traders">{loadGame.totalTraders}</span>
+                <br/>
+                Price:<span> </span>
+                <span id = "traders">{loadGame.traderPrice.toFixed(2)}</span>
+                g
+              </>
+            }
+            </div>
+          </div>
+          <br/>
+          
+          <div id = "livestockDiv">
+          <b>Livestock</b>
+          <hr/>
+          </div>
+          <br/>
+          
+          <div id = "miningDiv">
+          <b>Mining</b>
+          <hr/>
+          </div>
+        </div>
+        <div id = "columnB" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>
+        </div>
+        <div id = "columnC" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>
+
+        </div>
+        <div id = "columnD" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>
+
+        </div>
+      </div>
+    </>
+  )
+  
+}
+
 export default App;
