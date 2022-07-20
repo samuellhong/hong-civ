@@ -42,16 +42,11 @@
 }
 #farmerDiv{
   font-weight: 400;
-  height: 150px;
+  height: 120px;
   width: 100%;
   overflow:hidden;
 }
-#farmerDiv{
-  font-weight: 400;
-  height: 100px;
-  width: 100%;
-  overflow:hidden;
-}
+
 #livestockDiv{
   padding: 5px;
   font-weight: 400;
@@ -63,6 +58,32 @@
   font-weight: 400;
   height: 370px;
   width: 300px;
+}
+#scienceDiv{
+  font-weight: 400;
+  height: 370px;
+  width: 100%;
+}
+
+.scienceButton{
+  border: 1px solid black;
+  border-radius: 0px;
+  font-variant-numeric: tabular-nums;
+  /*background: -webkit-linear-gradient(top, white, gray);*/
+  background-color: rgb(190, 190, 190);
+  font-size: 11px;
+  height: 30px;
+  width: 100%;
+  margin-bottom: 3px;
+}
+.improvementButton{
+  border: 1px solid black;
+  border-radius: 2px;
+  font-variant-numeric: tabular-nums;
+  background: -webkit-linear-gradient(top, white, gray);
+  background-color: rgb(191, 191, 191);
+  font-size: 11px;
+  width: 80%;
 }
 
 .buySeed{

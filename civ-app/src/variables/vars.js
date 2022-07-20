@@ -7,7 +7,7 @@ let game = {
     population: 0,
     unusedPopulation: 0,
     stage: 0,
-    science: 0,
+    science: 75,
     land: 20,
     unusedLand: 20,
     landPrice: 5,
@@ -50,7 +50,8 @@ let game = {
     totalTraders: 0,
     traderSpeed: 2,
 
-
+    liveStockFlag:0,
+    miningFlag:0
 
 
 };
