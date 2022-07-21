@@ -2,8 +2,8 @@ Tech Divisions
 
 Animal Husbandry:
     - Livestock
-    - Build archers
     - Add horses
 
 Mining:
     - Mines
+    - Warrior

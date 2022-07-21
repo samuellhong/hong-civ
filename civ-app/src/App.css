@@ -19,6 +19,14 @@
 #columnB{
   width:316px;
   overflow:hidden;
+  float: left;
+}
+
+#columnC{
+  padding:5px;
+  width:316px;
+  overflow:hidden;
+  float:left;
 }
 
 #farmDiv{
@@ -69,10 +77,9 @@
   border: 1px solid black;
   border-radius: 0px;
   font-variant-numeric: tabular-nums;
-  /*background: -webkit-linear-gradient(top, white, gray);*/
   background-color: rgb(190, 190, 190);
   font-size: 11px;
-  height: 30px;
+  height: 50px;
   width: 100%;
   margin-bottom: 3px;
 }

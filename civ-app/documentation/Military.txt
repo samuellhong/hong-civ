@@ -1,0 +1,24 @@
+Military Division
+
+Your civilization has a total power score
+
+Power is determined by the troops you train in your army
+
+Unit Power Score Based off of 5 traits:
+    Range Strength
+    Melee Strength
+    Force
+    IQ
+    Mobility
+
+Power = R*[0.6,1.4] + M*[0.9,1.1] + F*[1] + I*[0.8,1.2] + Mobility*[0.6,1.4]
+After you train a unit, add it to your total power score
+Choose your power for an army and fight other combatants
+
+Battle result is based off random factors:
+There are 4 fight each battle, first 3 fights, each army uses 25% of their current army power, then uses leftover for last fight:
+    Example: A = 30, B = 10
+    Percent Score: A=>0.75, B=>0.25
+    Math.random() to select winner
+    The loser returns 0 power
+    The winnder returns random percent under percent score, for example, A would return [0,0.75]*30, B would return [0,0.25]*10

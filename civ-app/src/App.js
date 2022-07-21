@@ -1,27 +1,32 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
 import {game} from './variables/vars.js';
-import {techs, activeTechs} from './variables/tech.js';
+import {techs} from './variables/tech.js';
 import Header from './components/Header';
 
 var tech = [];
 tech = techs;
 
+if(true){
+  var scienceFlags = []
+  for(let i = 0; i<tech.length;i++){
+    localStorage.setItem("game",JSON.stringify(game));
+    scienceFlags.push(tech[i].flag);
+  }
+  localStorage.setItem("scienceFlags",JSON.stringify(scienceFlags));
+}
+
+var cornInterval;
+var wheatInterval;
+var melonInterval;
+
 const App = () =>{
   
   var loadGame;
   
-  var scienceFlags = []
-  scienceFlags = []
+  var scienceFlags = [];
   
-  if(true){
-    for(let i = 0; i<tech.length;i++){
-      localStorage.setItem("game",JSON.stringify(game));
-      scienceFlags.push(tech[i].flag);
-    }
-    localStorage.setItem("scienceFlags",JSON.stringify(scienceFlags));
-  }
-
+  
   if (localStorage.getItem("game") === "undefined"){
     localStorage.setItem("game",JSON.stringify(game));
   }
@@ -43,10 +48,10 @@ const App = () =>{
   const [stage, setStage] = useState(loadGame.stage);
   const stageIncrements = [5,20,100,800];
   const [techFlag, setTechFlag] = useState(scienceFlags);
-
+  
   function saveVar(){
-    //loadGame.stage = 4
-    //setStage(loadGame.stage);
+    loadGame.stage = 4
+    setStage(loadGame.stage);
     
     manageTech()
     
@@ -91,8 +96,44 @@ const App = () =>{
     }
   }
 
+  function addCornInterval(){
+    if(loadGame.cornFarmers <= 0){
+      cornInterval = setInterval(() => {},loadGame.farmerSpeed * 1000/(loadGame.cornFarmers));
+    }
+    else{
+      cornInterval = setInterval(() => {
+        growCorn();
+      },loadGame.farmerSpeed * 1000/(loadGame.cornFarmers));
+    }
+  }
+  function addWheatInterval(){
+    if(loadGame.wheatFarmers <= 0){
+      wheatInterval = setInterval(() => {},loadGame.farmerSpeed * 1000/(loadGame.wheatFarmers));
+    }
+    else{
+      wheatInterval = setInterval(() => {
+        growWheat();
+      },loadGame.farmerSpeed * 1000/(loadGame.wheatFarmers));
+    }
+  }
+  function addMelonInterval(){
+    if(loadGame.melonFarmers <= 0){
+      melonInterval = setInterval(() => {},loadGame.farmerSpeed * 1000/(loadGame.melonFarmers));
+    }
+    else{
+      melonInterval = setInterval(() => {
+        growMelon();
+      },loadGame.farmerSpeed * 1000/(loadGame.melonFarmers));
+    }
+  }
+
   useEffect(() => {
     manageTech()
+
+    addCornInterval();
+    addWheatInterval();
+    addMelonInterval();
+
     const cornSeedInterval = setInterval(() => {
       adjustCornSeedPrice();
     },(Math.random()*3+7)*1000);
@@ -122,19 +163,17 @@ const App = () =>{
     }
   })
 
-
   function manageTech(){
     var scienceDiv = document.getElementById("scienceDiv");
     while (scienceDiv.firstChild) {
       scienceDiv.removeChild(scienceDiv.firstChild);
     }
     for(let i = 0;i<tech.length;i++){
-      if(function(){tech[i].trigger()} && tech[i].flag ===0){
+      if(tech[i].flag ===0){
         displayTech(tech[i]);
       }
     }
   }
-
 
   function displayTech(t){
     var tempdiv = document.getElementById("scienceDiv");
@@ -147,9 +186,16 @@ const App = () =>{
     //span.style.fontFamily = "Times New Roman"
     var title = document.createTextNode(t.title+" ");
     span.appendChild(title);
-    var cost = document.createTextNode(t.priceTag);
+    var cost = document.createTextNode(t.priceTag+"\n");
     t.element.append(span);
     t.element.append(cost);
+    var space = document.createElement("br");
+    t.element.append(space);
+
+    var span2 = document.createElement("span");
+    var title2 = document.createTextNode(t.description+" ");
+    span2.appendChild(title2);
+    t.element.append(span2);
 
     t.element.onclick = (function(){canBuyScience(t)});
     
@@ -165,6 +211,9 @@ const App = () =>{
         setTechFlag([tech[0].flag,1]);
       }
       loadGame.science -= t.cost;
+      for(let i = 0; i<t.next.length;i++){
+        tech[t.next[i]].flag = 0;
+      }
       t.effect();
       saveVar();
     }
@@ -232,9 +281,9 @@ const App = () =>{
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function buyCornSeed(){
-    if(loadGame.cornSeedPrice*loadGame.seedBundle <= loadGame.money){
+    if(loadGame.cornSeedPrice <= loadGame.money){
       loadGame.cornSeedsCount += loadGame.seedBundle;
-      loadGame.money -= loadGame.cornSeedPrice*loadGame.seedBundle;
+      loadGame.money -= loadGame.cornSeedPrice;
       saveVar();
     }
   }
@@ -261,9 +310,9 @@ const App = () =>{
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function buyWheatSeed(){
-    if(loadGame.wheatSeedPrice*loadGame.seedBundle <= loadGame.money){
+    if(loadGame.wheatSeedPrice <= loadGame.money){
       loadGame.wheatSeedsCount += loadGame.seedBundle;
-      loadGame.money -= loadGame.wheatSeedPrice*loadGame.seedBundle;
+      loadGame.money -= loadGame.wheatSeedPrice;
       saveVar();
     }
     
@@ -288,9 +337,9 @@ const App = () =>{
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function buyMelonSeed(){
-    if(loadGame.melonSeedPrice*loadGame.seedBundle <= loadGame.money){
+    if(loadGame.melonSeedPrice <= loadGame.money){
       loadGame.melonSeedsCount += loadGame.seedBundle;
-      loadGame.money -= loadGame.melonSeedPrice*loadGame.seedBundle;
+      loadGame.money -= loadGame.melonSeedPrice;
       saveVar();
     }
     
@@ -323,6 +372,40 @@ const App = () =>{
       saveVar()
     }
   }
+  function addCornFarmer(b){
+    if((loadGame.unusedFarmers > 0 && b === 1) || (loadGame.cornFarmers > 0 && b === -1)){
+      loadGame.unusedFarmers -= b;
+      loadGame.cornFarmers += b;
+      if(cornInterval){
+        clearInterval(cornInterval);
+      }
+      addCornInterval();
+      saveVar()
+    }
+  }
+  function addWheatFarmer(b){
+    if((loadGame.unusedFarmers > 0 && b === 1) || (loadGame.wheatFarmers > 0 && b === -1)){
+      loadGame.unusedFarmers -= b;
+      loadGame.wheatFarmers += b;
+      if(wheatInterval){
+        clearInterval(wheatInterval);
+      }
+      addWheatInterval();
+      saveVar()
+    }
+  }
+  function addMelonFarmer(b){
+    if((loadGame.unusedFarmers > 0 && b === 1) || (loadGame.melonFarmers > 0 && b === -1)){
+      loadGame.unusedFarmers -= b;
+      loadGame.melonFarmers += b;
+      if(melonInterval){
+        clearInterval(melonInterval);
+      }
+      addMelonInterval();
+      saveVar();
+    }
+  }
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   return(
@@ -444,19 +527,19 @@ const App = () =>{
                 g
                 <br/>
                 Corn Farmers:<span> </span>
-                <button className = "increment" >-</button> <span> </span>
+                <button className = "increment" onClick = {()=>addCornFarmer(-1)}>-</button> <span> </span>
                 <span id = "cornFarmers">{loadGame.cornFarmers}</span> <span> </span>
-                <button className = "increment" >+</button> <span> </span>
+                <button className = "increment" onClick = {()=>addCornFarmer(1)}>+</button> <span> </span>
                 <br/>
                 Wheat Farmers:<span> </span>
-                <button className = "increment" >-</button> <span> </span>
+                <button className = "increment" onClick = {()=>addWheatFarmer(-1)}>-</button> <span> </span>
                 <span id = "wheatFarmers">{loadGame.wheatFarmers}</span> <span> </span>
-                <button className = "increment" >+</button> <span> </span>
+                <button className = "increment" onClick = {()=>addWheatFarmer(1)}>+</button> <span> </span>
                 <br/>
                 Melon Farmers:<span> </span>
-                <button className = "increment" >-</button> <span> </span>
+                <button className = "increment" onClick = {()=>addMelonFarmer(-1)}>-</button> <span> </span>
                 <span id = "melonFarmers">{loadGame.melonFarmers}</span> <span> </span>
-                <button className = "increment" >+</button> <span> </span>
+                <button className = "increment" onClick = {()=>addMelonFarmer(1)}>+</button> <span> </span>
               </>
             }
             </div>
@@ -484,9 +567,7 @@ const App = () =>{
               <hr/>
               </div>
             </>
-            
           }
-          
           <br/>
           {
             (techFlag[1] === 1) &&
@@ -496,9 +577,7 @@ const App = () =>{
               <hr/>
               </div>
             </>
-            
           }
-
         </div>
         <div id = "columnB" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>
           <div id = "techDiv">
@@ -512,6 +591,15 @@ const App = () =>{
           </div>
         </div>
         <div id = "columnC" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>
+          <div id = "techDiv">
+            <b>Military</b>
+            <hr/>
+            Total Power:<span> </span>
+            <span id = "totalMilitaryPower">{loadGame.totalMilitaryPower}</span>
+            <div id = "scienceDiv">
+
+            </div>
+          </div>
 
         </div>
         <div id = "columnD" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>

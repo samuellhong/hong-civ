@@ -17,7 +17,7 @@ let game = {
     farmLand:0,
     unusedFarmLand:0,
 
-    seedBundle:1,
+    seedBundle:3,
     
     cornSeedsCount: 10,
     wheatSeedsCount: 0,
@@ -26,9 +26,9 @@ let game = {
     wheatCount: 0,
     melonCount: 0,
     
-    cornGrowChance: 0.7,
-    wheatGrowChance: 0.6,
-    melonGrowChance: 0.5,
+    cornGrowChance: 0.5,
+    wheatGrowChance: 0.4,
+    melonGrowChance: 0.3,
     cornSell: (Math.random()*.2+0.11),        //0.11 -> 0.31
     cornSeedPrice: (Math.random()*.1+0.01),   //0.01 -> 0.11 
     wheatSell: (Math.random()+1.00),          //1.00 -> 1.99
@@ -51,9 +51,9 @@ let game = {
     traderSpeed: 2,
 
     liveStockFlag:0,
-    miningFlag:0
+    miningFlag:0,
 
-
+    totalMilitaryPower: 0,
 };
 
 export {game};
