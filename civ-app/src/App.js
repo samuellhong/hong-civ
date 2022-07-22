@@ -2,11 +2,14 @@ import './App.css';
 import React, { useState, useEffect } from 'react';
 import {game} from './variables/vars.js';
 import {techs} from './variables/tech.js';
+import {army} from './variables/army.js';
 import Header from './components/Header';
 
 var tech = [];
 tech = techs;
-
+var military = [];
+military = army;
+/*
 if(true){
   var scienceFlags = []
   for(let i = 0; i<tech.length;i++){
@@ -14,12 +17,20 @@ if(true){
     scienceFlags.push(tech[i].flag);
   }
   localStorage.setItem("scienceFlags",JSON.stringify(scienceFlags));
+  var militaryFlags = []
+  for(let i = 0; i<military.length;i++){
+    localStorage.setItem("game",JSON.stringify(game));
+    militaryFlags.push(military[i].flag);
+  }
+  localStorage.setItem("scienceFlags",JSON.stringify(militaryFlags));
 }
 
+*/
 var cornInterval;
 var wheatInterval;
 var melonInterval;
-
+var scienceInterval;
+const resourceString = ["g", "w", "s"]
 const App = () =>{
   
   var loadGame;
@@ -41,19 +52,20 @@ const App = () =>{
 
   loadGame = JSON.parse(localStorage.getItem("game"));
   
-  for(let i = 0; i<tech.length;i++){
-    tech[i].flag = scienceFlags[i];
-  }
+  //for(let i = 0; i<tech.length;i++){
+   // tech[i].flag = scienceFlags[i];
+  //}
   
   const [stage, setStage] = useState(loadGame.stage);
   const stageIncrements = [5,20,100,800];
   const [techFlag, setTechFlag] = useState(scienceFlags);
   
   function saveVar(){
-    loadGame.stage = 4
-    setStage(loadGame.stage);
+    //loadGame.stage = 4
+    //setStage(loadGame.stage);
     
-    manageTech()
+    manageTech();
+    manageMilitaryUnits();
     
     if(loadGame.money >= stageIncrements[stage]){
       loadGame.stage +=1;
@@ -64,6 +76,9 @@ const App = () =>{
     for(let i = 0; i<tech.length; i++){
       scienceFlags.push(tech[i].flag);
     }
+
+    loadGame.resources = [loadGame.money];
+
     localStorage.setItem("scienceFlags",JSON.stringify(scienceFlags));
     document.getElementById("money").innerHTML = loadGame.money.toFixed(2);
     document.getElementById("population").innerHTML = loadGame.population;
@@ -76,6 +91,8 @@ const App = () =>{
 
     document.getElementById("cornSeedsCount").innerHTML = loadGame.cornSeedsCount;
     document.getElementById("cornCount").innerHTML = loadGame.cornCount;
+
+    document.getElementById("totalMilitaryPower").innerHTML = loadGame.totalMilitaryPower;
     if(stage >=1){
       document.getElementById("wheatSeedsCount").innerHTML = loadGame.wheatSeedsCount;
       document.getElementById("wheatCount").innerHTML = loadGame.wheatCount;
@@ -94,6 +111,11 @@ const App = () =>{
     if(stage >= 4){
       document.getElementById("totalTraders").innerHTML = loadGame.totalTraders;
     }
+    //clearInterval(scienceInterval);
+    //scienceInterval = setInterval(() => {
+     // loadGame.science += loadGame.population;
+     // localStorage.setItem("game",JSON.stringify(loadGame));
+    //},loadGame.loadScienceTime);
   }
 
   function addCornInterval(){
@@ -128,7 +150,9 @@ const App = () =>{
   }
 
   useEffect(() => {
-    manageTech()
+    
+    manageTech();
+    manageMilitaryUnits();
 
     addCornInterval();
     addWheatInterval();
@@ -153,6 +177,11 @@ const App = () =>{
     const melonSellInterval = setInterval(() => {
       adjustMelonSell();
     },(Math.random()*3+7)*1000);
+    scienceInterval = setInterval(() => {
+      loadGame.science += loadGame.population;
+      document.getElementById("science").innerHTML = loadGame.science;
+      saveVar();
+    },loadGame.loadScienceTime);
     return()=>{
       clearInterval(cornSeedInterval);
       clearInterval(wheatSeedInterval);
@@ -160,6 +189,7 @@ const App = () =>{
       clearInterval(cornSellInterval);
       clearInterval(wheatSellInterval);
       clearInterval(melonSellInterval);
+      clearInterval(scienceInterval);
     }
   })
 
@@ -176,6 +206,7 @@ const App = () =>{
   }
 
   function displayTech(t){
+    
     var tempdiv = document.getElementById("scienceDiv");
     t.element = document.createElement("button");
     
@@ -219,6 +250,60 @@ const App = () =>{
     }
   }
 
+  function manageMilitaryUnits(){
+    var militaryDiv = document.getElementById("militaryUnitsDiv");
+    while (militaryDiv.firstChild) {
+      militaryDiv.removeChild(militaryDiv.firstChild);
+    }
+    for(let i = 0;i<military.length;i++){
+      if(military[i].flag ===1){
+        displayMilitaryUnit(military[i]);
+      }
+    }
+  }
+
+  function displayMilitaryUnit(t){
+    
+    var tempdiv = document.getElementById("militaryUnitsDiv");
+    t.element = document.createElement("div");
+    var button = document.createElement("button");
+    
+    t.element.setAttribute("id", t.id);
+    button.setAttribute("class", "buyUnitButton");
+    var span = document.createElement("span");
+    span.style.fontWeight = "bold"
+    //span.style.fontFamily = "Times New Roman"
+    var title = document.createTextNode(t.id);
+    span.appendChild(title);
+    button.appendChild(span);
+    t.element.appendChild(button)
+    t.element.appendChild(document.createElement("br"));
+    var cost = document.createTextNode("Cost: ");
+    t.element.appendChild(cost);
+    for(let i =0; i<t.price.length; i++){
+      t.element.appendChild(document.createTextNode(t.price[i]));
+      t.element.appendChild(document.createTextNode(resourceString[t.priceIndex[i]]));
+    }
+
+    t.element.onclick = (function(){canBuyUnit(t)});
+    tempdiv.appendChild(t.element);
+  }
+
+  function canBuyUnit(t){
+    var canBuy = true;
+    for(let i = 0;i<t.price.length; i++){
+      if(i===0 && t.price[i]>loadGame.money){
+        canBuy = false;
+        return;
+      }
+    }
+    if(canBuy){
+      loadGame.money -=t.price[0];
+    }
+    saveVar();
+  }
+  
+
   function adjustCornSeedPrice(){
     loadGame.cornSeedPrice = (Math.random()*.1+0.01);
     document.getElementById("cornSeedPrice").innerHTML = loadGame.cornSeedPrice.toFixed(2);
@@ -229,7 +314,6 @@ const App = () =>{
       loadGame.wheatSeedPrice = (Math.random()*.3+.31);
       wheatSeedPrice.innerHTML = loadGame.wheatSeedPrice.toFixed(2);
     }
-    
   } 
   function adjustMelonSeedPrice(){
     if(stage >=2){
@@ -369,6 +453,7 @@ const App = () =>{
       loadGame.farmerPrice *= (1+Math.random()*0.1);
       loadGame.totalFarmers +=1;
       loadGame.unusedFarmers +=1;
+      loadGame.population += 1;
       saveVar()
     }
   }
@@ -415,7 +500,7 @@ const App = () =>{
         Gold:
         <span id = "money"> {loadGame.money.toFixed(2)}</span>
         <br/>
-        Population:
+        Population:<span> </span>
         <span id = "population"> {loadGame.population}</span>
         <span> (</span>
         <span id = "unusedPopulation">{loadGame.unusedPopulation}</span>
@@ -591,12 +676,12 @@ const App = () =>{
           </div>
         </div>
         <div id = "columnC" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>
-          <div id = "techDiv">
+          <div id = "militaryDiv">
             <b>Military</b>
             <hr/>
             Total Power:<span> </span>
             <span id = "totalMilitaryPower">{loadGame.totalMilitaryPower}</span>
-            <div id = "scienceDiv">
+            <div id = "militaryUnitsDiv">
 
             </div>
           </div>

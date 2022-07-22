@@ -72,6 +72,11 @@
   height: 370px;
   width: 100%;
 }
+#militaryDiv{
+  font-weight: 400;
+  height: 370px;
+  width: 100%;
+}
 
 .scienceButton{
   border: 1px solid black;
@@ -121,6 +126,16 @@
   background-color: rgb(191, 191, 191);
   font-size: 11px;
   width: 20px;
+}
+
+.buyUnitButton{
+  border: 1px solid black;
+  border-radius: 2px;
+  font-variant-numeric: tabular-nums;
+  background: -webkit-linear-gradient(top, white, gray);
+  background-color: rgb(191, 191, 191);
+  font-size: 11px;
+  width: 80px;
 }
 
 .App-logo {

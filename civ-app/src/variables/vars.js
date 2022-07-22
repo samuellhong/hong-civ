@@ -7,7 +7,8 @@ let game = {
     population: 0,
     unusedPopulation: 0,
     stage: 0,
-    science: 75,
+    science: 0,
+    loadScienceTime: 10000,
     land: 20,
     unusedLand: 20,
     landPrice: 5,
@@ -38,7 +39,7 @@ let game = {
     buySeedRate: 1,
     growSeedRate: 1,
 
-    farmerPrice: .300,
+    farmerPrice: 300,
     totalFarmers: 0,
     unusedFarmers: 0,
     cornFarmers: 0,
@@ -54,6 +55,7 @@ let game = {
     miningFlag:0,
 
     totalMilitaryPower: 0,
+    resources: [0,0,0,0,0]
 };
 
 export {game};

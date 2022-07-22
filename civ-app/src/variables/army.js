@@ -8,8 +8,9 @@ var fighter = {
     melee:1,
     force:1,
     iq:1,
-    mobility:5
-
+    flag:1,
+    mobility:5,
+    element:null
 }
 army.push(fighter)
 
@@ -21,8 +22,9 @@ var slinger = {
     melee: 0,
     force:1,
     iq:1,
-    mobility:5
-
+    flag:1,
+    mobility:5,
+    element:null
 }
 army.push(slinger)
 
@@ -34,8 +36,9 @@ var warrior = {
     melee: 3,
     force:3,
     iq:1,
-    mobility:4
-
+    flag:0,
+    mobility:4,
+    element:null
 }
 army.push(warrior)
 
@@ -47,7 +50,10 @@ var archer = {
     melee: 1,
     force: 2,
     iq: 3,
-    mobility:3
-
+    flag:0,
+    mobility:3,
+    element:null
 }
 army.push(archer)
+
+export {army};
