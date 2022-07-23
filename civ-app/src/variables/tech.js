@@ -1,9 +1,27 @@
 var techs = [];
-var activeTechs = [];
+
+var neolithic = {
+    id: "Tech1",
+    title: "Neolothic Revolution",
+    priceTag: "",
+    flag: 0,
+    description: "Start your civilization",
+    trigger: function(){return true;},
+    element: null,
+    cost: 0,
+    effect: function(){
+        neolithic.flag = 2;
+        neolithic.element.parentNode.removeChild(neolithic.element);
+    },
+    next: null,
+    next1: null
+}
+
+techs.push(neolithic);
 
 var animalHusbandry = {
     id: "animalHusbandryTech",
-    title: "Animal Husbandry",
+    title: "Pastoralism",
     priceTag: "(500 science): \n",
     flag: 0,
     description: "Unlock Livestock; Unlock Horseman",
@@ -14,9 +32,9 @@ var animalHusbandry = {
         animalHusbandry.flag = 2;
         animalHusbandry.element.parentNode.removeChild(animalHusbandry.element);
     },
-    next: []
+    next: 0,
+    next1: null
 }
-
 techs.push(animalHusbandry)
 
 var mining = {
@@ -32,9 +50,27 @@ var mining = {
         mining.flag = 2;
         mining.element.parentNode.removeChild(mining.element);
     },
-    next: []
+    next: 0,
+    next1: null
 }
-
 techs.push(mining)
 
-export {techs, activeTechs}
+var archery = {
+    id: "archeryTech",
+    title: "Archery",
+    priceTag: "(900 science): ",
+    flag: 0,
+    description: "Unlock Archers",
+    trigger: function(){return true},
+    element: null,
+    cost: 900,
+    effect: function(){
+        archery.flag = 2;
+        archery.element.parentNode.removeChild(archery.element);
+    },
+    next: 1,
+    next1: null
+}
+techs.push(archery)
+
+export {techs}

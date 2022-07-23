@@ -32,27 +32,37 @@
 #farmDiv{
   padding: 5px;
   font-weight: 400;
-  height: 370px;
+  height: 330px;
   width: 300px;
   overflow:hidden;
 }
 #seedDiv{
+  position:relative;
   font-weight: 400;
   height: 150px;
   width: 50%;
   float:left;
+  overflow-y: scroll;
 }
+
 #cropDiv{
   font-weight: 400;
   height: 150px;
   width: 50%;
   overflow:hidden;
+  overflow-y: scroll;
 }
 #farmerDiv{
   font-weight: 400;
   height: 120px;
   width: 100%;
-  overflow:hidden;
+  overflow-y: scroll;
+}
+#traderDiv{
+  font-weight: 400;
+  height: 60px;
+  width: 100%;
+  overflow-y: scroll;
 }
 
 #livestockDiv{
@@ -69,13 +79,32 @@
 }
 #scienceDiv{
   font-weight: 400;
+  height: 300px;
+  width: 100%;
+  overflow-y: scroll;
+}
+#projectDiv{
+  font-weight: 400;
   height: 370px;
   width: 100%;
+}
+#pDiv{
+  font-weight: 400;
+  height: 370px;
+  width: 100%;
+  overflow-y: scroll;
+}
+#buildingDiv{
+  font-weight: 400;
+  height: 370px;
+  width: 100%;
+  overflow-y: scroll;
 }
 #militaryDiv{
   font-weight: 400;
   height: 370px;
   width: 100%;
+  overflow-y: scroll;
 }
 
 .scienceButton{
@@ -101,11 +130,13 @@
 .buySeed{
   border: 1px solid black;
   border-radius: 2px;
+  margin-top: 2px;
   font-variant-numeric: tabular-nums;
   background: -webkit-linear-gradient(top, white, gray);
   background-color: rgb(191, 191, 191);
   font-size: 11px;
-  width: 80px;
+  width: 70px;
+  height:20px;
 }
 
 .growCrop{
@@ -125,7 +156,9 @@
   background: -webkit-linear-gradient(top, white, gray);
   background-color: rgb(191, 191, 191);
   font-size: 11px;
-  width: 20px;
+  width: 18px;
+  height: 18px;
+  margin-top:2px;
 }
 
 .buyUnitButton{
@@ -135,8 +168,19 @@
   background: -webkit-linear-gradient(top, white, gray);
   background-color: rgb(191, 191, 191);
   font-size: 11px;
-  width: 80px;
+  width: 100px;
+
 }
+
+.buyUnitButton:hover ul{
+  display:block;
+  list-style-type: none;
+  padding-left: 0;
+}
+.ghostLabel{
+  display: none;
+}
+
 
 .App-logo {
   height: vmin;
