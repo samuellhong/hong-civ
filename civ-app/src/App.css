@@ -35,12 +35,14 @@
   height: 330px;
   width: 300px;
   overflow:hidden;
+  background-color: rgb(209, 228, 133);
 }
 #seedDiv{
-  position:relative;
+  
   font-weight: 400;
   height: 150px;
   width: 50%;
+  position:relative;
   float:left;
   overflow-y: scroll;
 }
@@ -62,7 +64,6 @@
   font-weight: 400;
   height: 60px;
   width: 100%;
-  overflow-y: scroll;
 }
 
 #livestockDiv{
@@ -70,6 +71,36 @@
   font-weight: 400;
   height: 370px;
   width: 300px;
+  background-color: rgb(170, 142, 93);
+}
+#animalsDiv{
+  font-weight: 400;
+  height: 150px;
+  width: 50%;
+  overflow-y: scroll;
+  position:relative;
+  float:left;
+}
+#livestockConfigDiv{
+  font-weight: 400;
+  height: 140px;
+  width: 140px;
+  border:solid 1px;
+  float:right;
+  background-color: rgb(29, 175, 29);
+}
+#herdersDiv{
+  font-weight: 400;
+  height: 120px;
+  width: 100%;
+  overflow-y: scroll;
+  
+}
+#livestockTraderDiv{
+  font-weight: 400;
+  height: 60px;
+  width: 100%;
+  overflow-y: scroll;
 }
 #miningDiv{
   padding: 5px;

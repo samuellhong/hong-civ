@@ -4,6 +4,7 @@ import {game} from './variables/vars.js';
 import {crops_} from './variables/crops.js';
 import {techs} from './variables/tech.js';
 import {army} from './variables/army.js';
+import {livestock_} from './variables/livestock.js';
 import {projects_} from './variables/projects.js';
 import Header from './components/Header';
 
@@ -11,6 +12,7 @@ var projects = projects_;
 var crops = crops_;
 var tech = techs;
 var military = army;
+var livestock = livestock_;
 
 var scienceFlags = [];
 var militaryFlags = [];
@@ -66,6 +68,10 @@ scienceFlags = JSON.parse(localStorage.getItem("scienceFlags"));
 for(let i = 0; i<tech.length;i++){
   tech[i].flag = scienceFlags[i];
 }
+projectsFlags = JSON.parse(localStorage.getItem("projectsFlags"));
+for(let i = 0; i<projects.length;i++){
+  projects[i].flag = projectsFlags[i];
+}
 loadGame = JSON.parse(localStorage.getItem("game"));
 
 const App = () =>{
@@ -86,6 +92,7 @@ const App = () =>{
     localStorage.setItem("projectsFlags",JSON.stringify(projectsFlags));
 
     manageCrops();
+    manageLivestock();
     manageTech();
     manageMilitaryUnits();
     manageProjects();
@@ -104,48 +111,13 @@ const App = () =>{
 
     document.getElementById("totalMilitaryPower").innerHTML = loadGame.totalMilitaryPower;
 
-    
-    
     localStorage.setItem("game",JSON.stringify(loadGame));
-    //clearInterval(scienceInterval);
-    //scienceInterval = setInterval(() => {
-     // loadGame.science += loadGame.population;
-     // localStorage.setItem("game",JSON.stringify(loadGame));
-    //},loadGame.loadScienceTime);
-  }
 
-  function addCropInterval(i){
-    
-    if(loadGame.farmersCount[i] <= 0){
-      growIntervals[i] = setInterval(() => {},loadGame.farmerSpeed * 1000/(loadGame.farmersCount[i]));
-    }
-    else{
-      growIntervals[i] = setInterval(() => {
-        crops[i].growCrop();
-        if(projects[2].flag===1){
-          if(loadGame.seedsCount[i] <=0){
-            crops[i].buySeed(i);
-          }
-        }
-        loadGame = JSON.parse(localStorage.getItem("game"));
-        manageCrops();
-      },loadGame.farmerSpeed * 1000/(loadGame.farmersCount[i]));
-    }
-  }
-
-  function addCropTInterval(){
-    if(loadGame.totalTraders <= 0){
-      cropTraderInterval = setInterval(() => {},loadGame.traderSpeed * 1000/(loadGame.totalTraders));
-    }
-    else{
-      cropTraderInterval = setInterval(() => {
-        sellCrop();
-      },loadGame.traderSpeed * 1000/(loadGame.totalTraders));
-    }
   }
 
   useEffect(() => {
     manageCrops();
+    manageLivestock();
     manageTech();
     manageMilitaryUnits();
     manageProjects();
@@ -153,6 +125,8 @@ const App = () =>{
     for (let i = 0;i<crops.length;i++){
       addCropInterval(i);
     }
+
+    
 
     const cornSeedInterval = setInterval(() => {
       adjustCornSeedPrice();
@@ -187,7 +161,16 @@ const App = () =>{
       clearInterval(scienceInterval);
     }
   })
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function manageCrops(){
     var seedDiv = document.getElementById("seedDiv");
     while (seedDiv.firstChild) {
@@ -223,7 +206,7 @@ const App = () =>{
         buyCropTrader();
       })
       traderDiv.appendChild(traderTag);
-      traderDiv.appendChild(document.createTextNode(" "+loadGame.totalTraders));
+      traderDiv.appendChild(document.createTextNode(" "+loadGame.cropTraders));
       traderDiv.appendChild(document.createElement("br"));
       traderDiv.appendChild(document.createTextNode("Price: "+loadGame.traderPrice.toFixed(2)+"g"));
     }
@@ -302,6 +285,41 @@ const App = () =>{
     farmerDiv.appendChild(dec2);
   }
 
+  function manageLivestock(){
+    var animalsDiv = document.getElementById("animalsDiv");
+    while(animalsDiv.firstChild){
+      animalsDiv.removeChild(animalsDiv.firstChild);
+    }
+    var herdersDiv = document.getElementById("herdersDiv");
+    while(herdersDiv.firstChild){
+      herdersDiv.removeChild(herdersDiv.firstChild);
+    }
+    var livestockTraderDiv = document.getElementById("livestockTraderDiv");
+    while(livestockTraderDiv.firstChild){
+      livestockTraderDiv.removeChild(livestockTraderDiv.firstChild);
+    }
+    for (let i = 0;i<livestock.length;i++){
+      if(scienceFlags[livestock[i].scienceReq] === 2){
+        displayLivestock(livestock[i]);
+      }
+    }
+    //var livestockConfigDiv = document.getElementById("livestockConfigDiv");
+    //while(livestockConfigDiv.firstChild){
+    //  livestockConfigDiv.removeChild(livestockConfigDiv.firstChild);
+   // }
+    //livestockConfigDiv.appendChild(document.createTextNode("Keep:"))
+  }
+  function displayLivestock(t){
+    var animalsDiv = document.getElementById("animalsDiv");
+    var animalButton = document.createElement("button");
+    animalButton.setAttribute("class","buySeed")
+    animalButton.appendChild(document.createTextNode(t.id))
+    animalsDiv.appendChild(animalButton);
+    animalsDiv.appendChild(document.createTextNode(" "+loadGame.livestockCount[t.index]));
+    animalsDiv.appendChild(document.createElement("br"));
+    animalsDiv.appendChild(document.createTextNode("Price: "+loadGame.livestockPrice[t.index].toFixed(2)+"g"))
+  }
+
   function manageTech(){
     var scienceDiv = document.getElementById("scienceDiv");
     while (scienceDiv.firstChild) {
@@ -350,6 +368,9 @@ const App = () =>{
 
   function canBuyScience(t){
     if(t.cost <= loadGame.science){
+      if(t.title === "Pastoralism"){
+        beginWildAnimals();
+      }
       loadGame.science -= t.cost;
       t.effect();
       saveVar();
@@ -472,7 +493,16 @@ const App = () =>{
       saveVar();
     }
   }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function adjustCornSeedPrice(){
     loadGame.cornSeedPrice = (Math.random()*.1+0.01);
     loadGame.seedPrice[0] = loadGame.cornSeedPrice;
@@ -512,6 +542,103 @@ const App = () =>{
     manageCrops();
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  var T = 0;
+  var T1 = 0;
+  var anId = false;
+  var startX = 0;
+  var startY = 0;
+  var rateX = 1;
+  var rateY = 1;
+  var wildAnimal = 0;
+  var color = "";
+  function beginWildAnimals(){
+    anId = false;
+    createWildAnimal();
+    animationLoop();
+  }
+  function animationLoop(timeStamp){
+    if(anId){
+      return;
+    }
+    T+=rateX;
+    T1+=rateY;
+    draw();
+    window.requestAnimationFrame(animationLoop);
+    
+  }
+  function draw(){
+    var canvas = document.getElementById("livestockConfigDiv");
+    canvas.width = "140";
+    canvas.height = "140";
+    canvas.addEventListener("mousedown", function(e){
+      getMousePosition(canvas,e);
+    });
+    var context = canvas.getContext('2d');
+    context.clearRect(0,0,canvas.width, canvas.height);
+    context.fillStyle = color;
+    context.beginPath();
+    context.arc(startX+T,startY+T1,7,0,2*Math.PI)
+    context.stroke();
+    context.fill()
+    
+    if(startX+T > 170 || startY+T1>170 || startX+T<-20 || startY+T1< -20){
+      context.clearRect(0,0,canvas.width, canvas.height);
+      T = 0;
+      T1 = 0;
+      startX=0;
+      startY=0;
+      window.cancelAnimationFrame(anId);
+      anId = true;
+      setTimeout(() => {beginWildAnimals();}, (Math.random()*5+5)*1000);
+    }
+  }
+  function getMousePosition(canvas,event){
+    let rect = canvas.getBoundingClientRect();
+    let x = event.clientX - rect.left;
+    let y = event.clientY - rect.top;
+    var x0 = startX+T;
+    var y0 = startY+T1;
+    if(Math.sqrt((x0-x)**2+(y0-y)**2)<7){
+      canvas.getContext('2d').clearRect(0,0,canvas.width, canvas.height);
+      T = 0;
+      T1 = 0;
+      startX=0;
+      startY=0;
+      window.cancelAnimationFrame(anId);
+      anId = true;
+      canvas.getContext('2d').clearRect(0,0,canvas.width, canvas.height);
+      if(wildAnimal === 0){
+        loadGame.livestockCount[0] += 1;
+      }
+      saveVar();
+      setTimeout(() => {beginWildAnimals();}, (Math.random()*5+5)*1000);
+      
+    }
+  }
+  function createWildAnimal(){
+    var animalColors = ["#FFBDF9","#66422D","#fff8dc"]
+    var top = Math.random();
+    var left = Math.random();
+    if(top <0.5){
+      startX = Math.random()*-10+0.01
+      rateX = Math.random()*1.8+0.1;
+    }
+    else{
+      startX = Math.random()*10+150
+      rateX = Math.random()*-1.8+0.1;
+    }
+    if(left<0.5){
+      startY = Math.random()*-10+0.01
+      rateY = Math.random()*1.8+0.1;
+    }
+    else{
+      startY = Math.random()*10+150
+      rateY = Math.random()*-1.8+0.1;
+    }
+    wildAnimal = Math.floor(Math.random()*3);
+    color = animalColors[wildAnimal];
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function incrementFarmLand(x){
     if(x === -1 && (loadGame.farmLand <= 0 || loadGame.unusedFarmLand <= 0)){
       return;
@@ -523,6 +650,35 @@ const App = () =>{
     loadGame.farmLand += x;
     loadGame.unusedFarmLand += x
     saveVar();
+  }
+  function addCropInterval(i){
+    
+    if(loadGame.farmersCount[i] <= 0){
+      growIntervals[i] = setInterval(() => {},loadGame.farmerSpeed * 1000/(loadGame.farmersCount[i]));
+    }
+    else{
+      growIntervals[i] = setInterval(() => {
+        crops[i].growCrop();
+        if(projects[2].flag===1){
+          if(loadGame.seedsCount[i] <=0){
+            crops[i].buySeed(i);
+          }
+        }
+        loadGame = JSON.parse(localStorage.getItem("game"));
+        manageCrops();
+      },loadGame.farmerSpeed * 1000/(loadGame.farmersCount[i]));
+    }
+  }
+
+  function addCropTInterval(){
+    if(loadGame.cropTraders <= 0){
+      cropTraderInterval = setInterval(() => {},loadGame.traderSpeed * 1000/(loadGame.cropTraders));
+    }
+    else{
+      cropTraderInterval = setInterval(() => {
+        sellCrop();
+      },loadGame.traderSpeed * 1000/(loadGame.cropTraders));
+    }
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function buyLand(){
@@ -560,7 +716,6 @@ const App = () =>{
         }
       }
     }
-   
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function buyFarmer(){
@@ -591,7 +746,7 @@ const App = () =>{
     if(loadGame.traderPrice <= loadGame.money){
       loadGame.money -= loadGame.traderPrice;
       loadGame.traderPrice *= (1+Math.random()*0.1);
-      loadGame.totalTraders +=1;
+      loadGame.cropTraders +=1;
       loadGame.population += 1;
       if(cropTraderInterval){
         clearInterval(cropTraderInterval);
@@ -646,10 +801,17 @@ const App = () =>{
           </div>
           
           <br/>
-
-          <div id = "livestockDiv">
-          <b>Livestock</b>
+          <b>Livestock</b> <span> </span>
+          <button className = "increment" >-</button> <span> </span>
+          <span id = "farmLand">{loadGame.livestockLand}</span> <span> </span>
+          <button className = "increment" >+</button> <span> </span>
           <hr/>
+          <div id = "livestockDiv">
+            
+            <div id = "animalsDiv"></div>
+            <canvas id = "livestockConfigDiv"></canvas>
+            <div id = "herdersDiv"></div>
+            <div id = "livestockTraderDiv"></div>
           </div>
 
           <br/>
