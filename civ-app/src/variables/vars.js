@@ -7,7 +7,7 @@ let game = {
     population: 0,
     unusedPopulation: 0,
     stage: 0,
-    science: 800,
+    science: 0,
     loadScienceTime: 10000,
     land: 20,
     unusedLand: 20,

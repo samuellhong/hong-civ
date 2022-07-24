@@ -3,10 +3,13 @@ Tech Divisions
 1. Neolithic Revolution:
     - Farm
 
-2. Animal Husbandry:
+2. Pastoralism:
     - Livestock
     - Add horses
 
 3. Mining:
     - Mines
     - Warrior
+
+4. Pottery:
+    - Granary

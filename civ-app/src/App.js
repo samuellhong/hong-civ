@@ -73,12 +73,15 @@ for(let i = 0; i<projects.length;i++){
   projects[i].flag = projectsFlags[i];
 }
 loadGame = JSON.parse(localStorage.getItem("game"));
-
+var temp = 0;
 const App = () =>{
-  
+
   
   function saveVar(){
-
+    if(tech[1].flag===2 && temp ===0){
+      beginWildAnimals();
+      temp=1;
+    }
     scienceFlags = []
     for(let i = 0; i<tech.length; i++){
       scienceFlags.push(tech[i].flag);

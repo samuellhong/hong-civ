@@ -24,12 +24,12 @@ techs.push(neolithic);
 var animalHusbandry = {
     id: "animalHusbandryTech",
     title: "Pastoralism",
-    priceTag: "(500 science): \n",
+    priceTag: "(300 science): \n",
     flag: 0,
     description: "Unlock Livestock; Unlock Horseman",
     trigger: function(){return true;},
     element: null,
-    cost: 500,
+    cost: 300,
     effect: function(){
         animalHusbandry.flag = 2;
         animalHusbandry.element.parentNode.removeChild(animalHusbandry.element);
