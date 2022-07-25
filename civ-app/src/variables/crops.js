@@ -1,5 +1,17 @@
 var crops_ = []
 
+function triggerA(t){
+    var sFlag = JSON.parse(localStorage.getItem("scienceFlags"));
+    var pFlags = JSON.parse(localStorage.getItem("projectsFlags"));
+    if(sFlag[t.scienceReq]!== 2){
+        return false;
+    }
+    if(pFlags[t.projectReq]!==1 && t.projectReq !== null){
+        return false;
+    }
+    return true;
+}
+
 function buySeed(i){
     
     var loadGame = JSON.parse(localStorage.getItem("game"));
@@ -16,6 +28,13 @@ function growCrop(i){
         if(Math.random() < loadGame.cropGrowChance[i]){
             loadGame.cropCount[i] += 1;
             loadGame.unusedFarmLand -=1;
+            if(loadGame.cropCount[i]>loadGame.keepCrop && loadGame.cropStorageSpace > 0){
+                loadGame.storedCrops[i] +=1;
+                loadGame.cropCount[i] -= 1;
+                loadGame.unusedFarmLand +=1;
+                loadGame.cropStorageSpace -=1;
+                loadGame.storedFood += 1;
+            }
         }
     }
     localStorage.setItem("game",JSON.stringify(loadGame));
@@ -35,9 +54,6 @@ var corn = {
     id: "Corn",
     scienceReq: 0,
     projectReq: null,
-    seedDescription: "CornSeed",
-    growDescription: "GrowCorn",
-    sellDescription: "SellCorn",
     growChance: 0.5,
     seedCost: (Math.random()*.1+0.01),
     sellPrice:(Math.random()*.2+0.11),
@@ -56,7 +72,13 @@ var corn = {
     },
     sellCrop: function(){
         sellCrop(0);
-    }
+    },
+    trigger: function(){
+        return triggerA(corn);
+    },
+    feed:1,
+    cropMult:[0.2,0.11],
+    seedMult:[0.1,0.01],
 }
 crops_.push(corn)
 var wheat = {
@@ -64,9 +86,6 @@ var wheat = {
     id: "Wheat",
     scienceReq: 0,
     projectReq: null,
-    seedDescription: "WheatSeed",
-    growDescription: "GrowWheat",
-    sellDescription: "SellWheat",
     growChance: 0.5,
     seedCost: (Math.random()*.3+.31),
     sellPrice:(Math.random()+1.00),
@@ -85,7 +104,13 @@ var wheat = {
     },
     sellCrop: function(){
         sellCrop(1);
-    }
+    },
+    trigger: function(){
+        return triggerA(wheat);
+    },
+    feed:2,
+    cropMult:[1,1],
+    seedMult:[0.3,0.31],
 }
 
 crops_.push(wheat);
@@ -95,9 +120,6 @@ var melon = {
     id: "Melon",
     scienceReq: 0,
     projectReq: null,
-    seedDescription: "MelonSeed",
-    growDescription: "GrowMelon",
-    sellDescription: "SellMelon",
     growChance: 0.5,
     seedCost: (Math.random()*2+2.01),
     sellPrice:(Math.random()*4+4.01),
@@ -116,7 +138,13 @@ var melon = {
     },
     sellCrop: function(){
         sellCrop(2);
-    }
+    },
+    trigger: function(){
+        return triggerA(melon);
+    },
+    feed:2,
+    cropMult:[4,4.01],
+    seedMult:[2,2.01],
 }
 
 crops_.push(melon);

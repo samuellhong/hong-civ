@@ -6,6 +6,7 @@ import {techs} from './variables/tech.js';
 import {army} from './variables/army.js';
 import {livestock_} from './variables/livestock.js';
 import {projects_} from './variables/projects.js';
+import {buildings_} from './variables/buildings.js';
 import Header from './components/Header';
 
 var projects = projects_;
@@ -13,6 +14,7 @@ var crops = crops_;
 var tech = techs;
 var military = army;
 var livestock = livestock_;
+var buildings = buildings_;
 
 var scienceFlags = [];
 var militaryFlags = [];
@@ -34,13 +36,13 @@ if(true){
   }
   localStorage.setItem("projectsFlags",JSON.stringify(projectsFlags));
 }
-
-
 var cropTraderInterval;
 var scienceInterval;
 var growIntervals = [null,null,null];
+var seedPriceIntervals = [null,null,null];
+var cropPriceIntervals = [null,null,null];
+var livestockPriceIntervals = [null,null,null];
 const resourceString = ["g", "wood", "stone"]
-var loadGame;
   
 if (localStorage.getItem("game") === "undefined"){
   localStorage.setItem("game",JSON.stringify(game));
@@ -72,15 +74,49 @@ projectsFlags = JSON.parse(localStorage.getItem("projectsFlags"));
 for(let i = 0; i<projects.length;i++){
   projects[i].flag = projectsFlags[i];
 }
-loadGame = JSON.parse(localStorage.getItem("game"));
-var temp = 0;
+var loadGame = JSON.parse(localStorage.getItem("game"));
+var status = 0;
+var gameStart = 0;
 const App = () =>{
-
   
   function saveVar(){
-    if(tech[1].flag===2 && temp ===0){
+    if(loadGame.hungryStatus ===0){
+      loadGame.scienceInt = loadGame.population;
+    }
+    else{
+      loadGame.scienceInt = 0;
+    }
+    if(tech[1].flag===2 && status ===0){
       beginWildAnimals();
-      temp=1;
+      status=1;
+    }
+    if (gameStart ===0){
+      /* eslint-disable no-unused-vars */
+      
+      setInterval(()=>{
+        if(loadGame.population >0){
+          feed();
+          storeExtraCrops();
+        }
+      },2000);
+      for(let i = 0;i<crops.length;i++){
+        if(scienceFlags[crops[i].scienceReq]===2){
+          seedPriceIntervals[i] = setInterval(()=>{
+            createSeedInterval(i);
+          },(Math.random()*3+7)*1000);
+          cropPriceIntervals[i] = setInterval(()=>{
+            createCropInterval(i);
+          },(Math.random()*3+7)*1000);
+        }
+      }
+      for(let i = 0;i<livestock.length;i++){
+        if(scienceFlags[livestock[i].scienceReq] ===2){
+          livestockPriceIntervals[i] = setInterval(()=>{
+            createLivestockPriceInterval(i);
+          },(Math.random()*3+10)*1000)
+        }
+      }
+      gameStart = 1;
     }
     scienceFlags = []
     for(let i = 0; i<tech.length; i++){
@@ -96,71 +132,180 @@ const App = () =>{
 
     manageCrops();
     manageLivestock();
+    manageFood();
     manageTech();
-    manageMilitaryUnits();
     manageProjects();
-    
+    manageBuildings();
+    manageMilitaryUnits();
+   
     loadGame.resources = [loadGame.money];
 
     localStorage.setItem("scienceFlags",JSON.stringify(scienceFlags));
     document.getElementById("money").innerHTML = loadGame.money.toFixed(2);
     document.getElementById("population").innerHTML = loadGame.population;
     document.getElementById("unusedPopulation").innerHTML = loadGame.unusedPopulation;
-    document.getElementById("science").innerHTML = loadGame.science;
     document.getElementById("land").innerHTML = loadGame.land;
     document.getElementById("unusedLand").innerHTML = loadGame.unusedLand;
     document.getElementById("landPrice").innerHTML = loadGame.landPrice.toFixed(2);
     document.getElementById("farmLand").innerHTML = loadGame.farmLand;
-
+    document.getElementById("livestockLand").innerHTML = loadGame.livestockLand;
     document.getElementById("totalMilitaryPower").innerHTML = loadGame.totalMilitaryPower;
 
     localStorage.setItem("game",JSON.stringify(loadGame));
 
   }
 
+  function feed(){
+    
+    var hunger = loadGame.population*3 - loadGame.distributedFood;
+    loadGame.distributedFood = 0;
+    loadGame.hungryStatus = 0;
+    while(hunger > 0){
+      var totalCrops = 0;
+      var totalMeat = 0;
+      for(let i = 0;i<crops.length;i++){
+        totalCrops += loadGame.storedCrops[i];
+      }
+      for(let i =0;i<livestock.length;i++){
+        totalMeat += loadGame.storedMeat[i];
+      }
+      if(totalCrops + totalMeat <=0){
+        loadGame.hungryStatus = 1;
+        saveVar();
+        return;
+      }
+      var odds = [totalCrops/totalCrops+totalMeat, totalMeat/totalCrops+totalMeat];
+      if(Math.random() < odds[0]){
+        var odds2 = [];
+        for(let i = 0; i<crops.length; i++){
+          odds2.push(loadGame.storedCrops[i]/totalCrops);
+        }
+        const chance = Math.random();
+        var sum = 0;
+        for(let i =0;i<crops.length;i++){
+          if(chance <odds2[i]+sum){
+            totalCrops -= 1;
+            loadGame.storedCrops[i] -= 1;
+            loadGame.storedFood -=1;
+            loadGame.cropStorageSpace += 1;
+            hunger -= crops[i].feed;
+            localStorage.setItem("game",JSON.stringify(loadGame));
+            loadGame = JSON.parse(localStorage.getItem("game"));
+            saveVar();
+          }
+          else{
+            sum += odds2[i];
+          }
+        }
+      }
+      else{
+        let odds2 = [];
+        for(let i = 0; i<livestock.length; i++){
+          odds2.push(loadGame.storedMeat[i]/totalMeat);
+        }
+        const chance = Math.random();
+        let sum = 0;
+        for(let i =0;i<livestock.length;i++){
+          if(chance < odds2[i]+sum){
+            totalMeat -= 1;
+            loadGame.storedMeat[i] -= 1;
+            loadGame.storedFood -=1;
+            loadGame.meatStorageSpace += 1;
+            hunger -= livestock[i].feed;
+            localStorage.setItem("game",JSON.stringify(loadGame));
+            loadGame = JSON.parse(localStorage.getItem("game"));
+            saveVar();
+
+          }
+          else{
+            sum += odds2[i];
+          }
+        }
+      }
+    }
+    
+    loadGame.distributedFood -= hunger;
+  }
+
+  function storeExtraCrops(){
+    while(loadGame.cropStorageSpace > 0){
+      var odds = []
+      var totCrops=0;
+      for(let j =0;j<crops.length;j++){
+        if(loadGame.cropCount[j]>loadGame.keepCrop){
+          totCrops += loadGame.cropCount[j]-loadGame.keepCrop;
+        }
+      }          
+      if(totCrops>0){
+        for(let j =0;j<crops.length;j++){
+          if(loadGame.cropCount[j]>loadGame.keepCrop){
+            odds.push((loadGame.cropCount[j]-loadGame.keepCrop)/totCrops);
+          }
+          else{
+            odds.push(0);
+          }
+        }
+        const chance2 = Math.random();
+        var sum2 = 0;
+        for(let j = 0;j<crops.length;j++){
+          if(chance2 < odds[j]+sum2){
+            loadGame.storedCrops[j] += 1;
+            loadGame.storedFood +=1;
+            loadGame.cropStorageSpace -= 1;
+            loadGame.cropCount[j] -= 1;
+            loadGame.unusedFarmLand +=1;
+            break;
+          }
+          sum2+=odds[j]
+        }
+      }
+      else{
+        saveVar();
+        return;
+      }
+    }
+    saveVar();
+  }
+
+  function createSeedInterval(i){
+    loadGame.seedPrice[i] = (Math.random()*crops[i].seedMult[0]+crops[i].seedMult[1]);
+    localStorage.setItem("game",JSON.stringify(loadGame));
+    loadGame = JSON.parse(localStorage.getItem("game"));
+    saveVar();
+  }
+  function createCropInterval(i){
+    loadGame.cropSell[i] = (Math.random()*crops[i].cropMult[0]+crops[i].cropMult[1]);
+    localStorage.setItem("game",JSON.stringify(loadGame));
+    loadGame = JSON.parse(localStorage.getItem("game"));
+    saveVar();
+  }
+  function createLivestockPriceInterval(i){
+    loadGame.livestockPrice[i] = (Math.random()*livestock[i].price[0]+livestock[i].price[1]);
+    localStorage.setItem("game",JSON.stringify(loadGame));
+    loadGame = JSON.parse(localStorage.getItem("game"));
+    saveVar();
+  }
+
   useEffect(() => {
     manageCrops();
     manageLivestock();
+    manageFood();
     manageTech();
+    manageBuildings();
     manageMilitaryUnits();
     manageProjects();
+
+    
     
     for (let i = 0;i<crops.length;i++){
       addCropInterval(i);
     }
-
-    
-
-    const cornSeedInterval = setInterval(() => {
-      adjustCornSeedPrice();
-    },(Math.random()*3+7)*1000);
-    const wheatSeedInterval = setInterval(() => {
-      adjustWheatSeedPrice();
-    },(Math.random()*3+7)*1000);
-    const melonSeedInterval = setInterval(() => {
-      adjustMelonSeedPrice();
-    },(Math.random()*3+7)*1000);
-    const cornSellInterval = setInterval(() => {
-      adjustCornSell();
-    },(Math.random()*3+7)*1000);
-    const wheatSellInterval = setInterval(() => {
-      adjustWheatSell();
-    },(Math.random()*3+7)*1000);
-    const melonSellInterval = setInterval(() => {
-      adjustMelonSell();
-    },(Math.random()*3+7)*1000);
     scienceInterval = setInterval(() => {
-      loadGame.science += loadGame.population;
-      document.getElementById("science").innerHTML = loadGame.science;
+      loadGame.science += loadGame.scienceInt;
       saveVar();
     },loadGame.loadScienceTime);
     return()=>{
-      clearInterval(cornSeedInterval);
-      clearInterval(wheatSeedInterval);
-      clearInterval(melonSeedInterval);
-      clearInterval(cornSellInterval);
-      clearInterval(wheatSellInterval);
-      clearInterval(melonSellInterval);
+
       clearInterval(scienceInterval);
     }
   })
@@ -200,6 +345,31 @@ const App = () =>{
       })
       farmerDiv.appendChild(farmerTag);
       farmerDiv.appendChild(document.createTextNode(" "+loadGame.totalFarmers));
+      for(let i =loadGame.totalFarmers.toString().length;i<9;i++){
+        farmerDiv.appendChild(document.createTextNode('\u00A0\u00A0'));
+      }
+      
+      farmerDiv.appendChild(document.createTextNode("Keep "));
+      var dec = document.createElement("button");
+      dec.setAttribute("class", "increment");
+      dec.appendChild(document.createTextNode("-"));
+      dec.onclick = function(){
+        if(loadGame.keepCrop >0){
+          loadGame.keepCrop -=1;
+          saveVar();
+        }
+      }
+      farmerDiv.appendChild(dec);
+      farmerDiv.appendChild(document.createTextNode(" "+loadGame.keepCrop+" "));
+      var dec2 = document.createElement("button");
+      dec2.setAttribute("class", "increment");
+      dec2.appendChild(document.createTextNode("+"));
+      dec2.onclick = function(){
+        loadGame.keepCrop +=1;
+        saveVar();
+      }
+      farmerDiv.appendChild(dec2);
+      
       farmerDiv.appendChild(document.createElement("br"));
       farmerDiv.appendChild(document.createTextNode("Price: "+loadGame.farmerPrice.toFixed(2)+"g"));
       var traderTag = document.createElement("button");
@@ -209,13 +379,35 @@ const App = () =>{
         buyCropTrader();
       })
       traderDiv.appendChild(traderTag);
-      traderDiv.appendChild(document.createTextNode(" "+loadGame.cropTraders));
+      traderDiv.appendChild(document.createTextNode(" "+loadGame.cropTraders+" "));
+      var switchBtn = document.createElement("button");
+      switchBtn.setAttribute("class","switch");
+      if(loadGame.cropTraderStatus === 1){
+        switchBtn.appendChild(document.createTextNode("Active"));
+      }
+      else{
+        switchBtn.appendChild(document.createTextNode("Sleep"));
+      }
+      switchBtn.onclick = function(){
+        if(cropTraderInterval){
+          clearInterval(cropTraderInterval);
+        }
+        if(loadGame.cropTraderStatus === 1){
+          loadGame.cropTraderStatus = 0
+        }
+        else{
+          loadGame.cropTraderStatus = 1
+          addCropTInterval();
+        }
+        saveVar();
+      }
+      traderDiv.append(switchBtn);
       traderDiv.appendChild(document.createElement("br"));
       traderDiv.appendChild(document.createTextNode("Price: "+loadGame.traderPrice.toFixed(2)+"g"));
     }
     
     for(let i = 0; i<crops.length;i++){
-      if(scienceFlags[crops[i].scienceReq]===2){
+      if(crops[i].trigger()){
         displayCrop(crops[i]);
       }
     }
@@ -228,7 +420,7 @@ const App = () =>{
     var buySeed = document.createElement("button");
     buySeed.setAttribute("class", "buySeed");
 
-    var title = document.createTextNode(t.seedDescription);
+    var title = document.createTextNode(t.id+"Seed");
     buySeed.appendChild(title);
     buySeed.onclick = (function(){
       t.buySeed();
@@ -243,7 +435,7 @@ const App = () =>{
     var cropDiv = document.getElementById("cropDiv");
     var growCrop = document.createElement("button");
     growCrop.setAttribute("class", "buySeed");
-    growCrop.appendChild(document.createTextNode(t.growDescription));
+    growCrop.appendChild(document.createTextNode("Grow"+t.id));
     growCrop.onclick = (function(){
       t.growCrop();
       loadGame = JSON.parse(localStorage.getItem("game"));
@@ -255,7 +447,7 @@ const App = () =>{
 
     var sellCrop = document.createElement("button");
     sellCrop.setAttribute("class", "buySeed");
-    sellCrop.appendChild(document.createTextNode(t.sellDescription));
+    sellCrop.appendChild(document.createTextNode("Sell"+t.id));
     sellCrop.onclick = (function(){
       t.sellCrop();
       loadGame = JSON.parse(localStorage.getItem("game"));
@@ -302,25 +494,60 @@ const App = () =>{
       livestockTraderDiv.removeChild(livestockTraderDiv.firstChild);
     }
     for (let i = 0;i<livestock.length;i++){
-      if(scienceFlags[livestock[i].scienceReq] === 2){
+      if(livestock[i].trigger()){
         displayLivestock(livestock[i]);
       }
     }
-    //var livestockConfigDiv = document.getElementById("livestockConfigDiv");
-    //while(livestockConfigDiv.firstChild){
-    //  livestockConfigDiv.removeChild(livestockConfigDiv.firstChild);
-   // }
-    //livestockConfigDiv.appendChild(document.createTextNode("Keep:"))
+
   }
   function displayLivestock(t){
     var animalsDiv = document.getElementById("animalsDiv");
     var animalButton = document.createElement("button");
-    animalButton.setAttribute("class","buySeed")
-    animalButton.appendChild(document.createTextNode(t.id))
+    animalButton.setAttribute("class","buySeed");
+    animalButton.appendChild(document.createTextNode("Sell"+t.id));
+    animalButton.onclick = function(){
+      t.sell();
+      loadGame = JSON.parse(localStorage.getItem("game"));
+      saveVar();
+    }
     animalsDiv.appendChild(animalButton);
     animalsDiv.appendChild(document.createTextNode(" "+loadGame.livestockCount[t.index]));
     animalsDiv.appendChild(document.createElement("br"));
     animalsDiv.appendChild(document.createTextNode("Price: "+loadGame.livestockPrice[t.index].toFixed(2)+"g"))
+  }
+
+  function manageFood(){
+    var foodDiv = document.getElementById("foodDiv");
+    while (foodDiv.firstChild) {
+      foodDiv.removeChild(foodDiv.firstChild);
+    }
+    foodDiv.appendChild(document.createTextNode("Housing: "+(loadGame.housing-loadGame.unusedHousing)+"/"+loadGame.housing));
+    foodDiv.appendChild(document.createElement("br"));
+    foodDiv.appendChild(document.createTextNode("Reserved: "+loadGame.storedFood+" (-"+(loadGame.population*3)+")"))
+    foodDiv.appendChild(document.createElement("br"));
+    var tracker = 1;
+    for(let i = 0;i<crops.length;i++){
+      if(crops[i].scienceReq === null || scienceFlags[crops[i].scienceReq]===2){
+        foodDiv.appendChild(document.createTextNode(crops[i].id+": "+loadGame.storedCrops[i]));
+        for (let j =crops[i].id.length+loadGame.storedCrops[i].toString().length+2;j<17;j++){
+          foodDiv.appendChild(document.createTextNode('\u00A0'))
+        }
+        if (tracker %3===0){
+          foodDiv.appendChild(document.createElement("br"));
+        }
+        tracker+=1;
+      }
+    }
+    for(let i = 0;i<livestock.length;i++){
+      if(livestock[i].scienceReq ===null || scienceFlags[livestock[i].scienceReq]===2){
+        foodDiv.appendChild(document.createTextNode(livestock[i].meat+": "+loadGame.storedMeat[i]));
+        foodDiv.appendChild(document.createTextNode('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0'));
+        if (tracker %3===0){
+          foodDiv.appendChild(document.createElement("br"));
+        }
+        tracker+=1;
+      }
+    }
   }
 
   function manageTech(){
@@ -328,15 +555,9 @@ const App = () =>{
     while (scienceDiv.firstChild) {
       scienceDiv.removeChild(scienceDiv.firstChild);
     }
+    scienceDiv.appendChild(document.createTextNode("Science: "+loadGame.science+" (+"+loadGame.scienceInt+")"));
     for(let i = 0;i<tech.length;i++){
-      var temp = true;
-      if(tech[i].next !== null && scienceFlags[tech[i].next]!==2){
-        temp = false;
-      }
-      if(tech[i].next1 !== null && scienceFlags[tech[i].next1] !==2){
-        temp = false;
-      }
-      if(tech[i].flag ===0 && temp){
+      if(tech[i].trigger()){
         displayTech(tech[i]);
       }
     }
@@ -370,14 +591,74 @@ const App = () =>{
   }
 
   function canBuyScience(t){
+    t.effect();
+    loadGame = JSON.parse(localStorage.getItem("game"));
+    saveVar();
     if(t.cost <= loadGame.science){
+      
       if(t.title === "Pastoralism"){
         beginWildAnimals();
       }
-      loadGame.science -= t.cost;
+      
+      if(t.id === "Tech1"){
+        for(let i = 0;i<crops.length;i++){
+          seedPriceIntervals[i] = setInterval(()=>{
+            createSeedInterval(i);
+          },(Math.random()*3+7)*1000);
+          cropPriceIntervals[i] = setInterval(()=>{
+            createCropInterval(i);
+          },(Math.random()*3+7)*1000);
+        }
+        gameStart = 1;
+      }
+      if(t.id ==="animalHusbandryTech"){
+        for(let i = 0;i<livestock.length;i++){
+          livestockPriceIntervals[i] = setInterval(()=>{
+            createLivestockPriceInterval(i);
+          },(Math.random()*3+10)*1000);
+        }
+      }
+    }
+  }
+
+  function manageBuildings(){
+    var buildingDiv = document.getElementById("buildingDiv");
+    while (buildingDiv.firstChild) {
+      buildingDiv.removeChild(buildingDiv.firstChild);
+    }
+    for(let i = 0;i<buildings.length;i++){
+      if(buildings[i].trigger()){
+        displayBuilding(buildings[i]);
+      }
+    }
+  }
+  function displayBuilding(t){
+    var buildingDiv = document.getElementById("buildingDiv");
+    var button = document.createElement("button");
+    button.setAttribute("class","buildingButton");
+    button.appendChild(document.createTextNode(t.id));
+    button.appendChild(document.createElement("br"));
+
+    var description = document.createElement("a");
+    description.setAttribute("class","ghostLabel");
+    description.appendChild(document.createTextNode(t.description));
+    button.appendChild(description);
+    button.onclick = function(){
       t.effect();
+      loadGame = JSON.parse(localStorage.getItem("game"));
       saveVar();
     }
+    
+    buildingDiv.appendChild(button);
+    buildingDiv.appendChild(document.createTextNode(" "+loadGame.buildingCount[t.index]));
+    buildingDiv.appendChild(document.createElement("br"));
+    buildingDiv.appendChild(document.createTextNode("Price: "));
+    for(let i =0; i<t.price.length; i++){
+      buildingDiv.appendChild(document.createTextNode(t.price[i]));
+      buildingDiv.appendChild(document.createTextNode(resourceString[t.priceIndex[i]]+" "));
+    }
+    buildingDiv.appendChild(document.createElement("br"));
+
   }
 
   function manageMilitaryUnits(){
@@ -450,15 +731,8 @@ const App = () =>{
       projectsDiv.removeChild(projectsDiv.firstChild);
     }
     for(let i = 0;i<projects.length;i++){
-      var temp = true;
-      if (projects[i].scienceReq !== null && scienceFlags[projects[i].scienceReq] !== 2){
-        temp = false;
-      }
-      if (projects[i].projectReq !== null && projectsFlags[projects[i].projectReq] !== 1){
-        temp = false;
-      }
       
-      if(projects[i].flag ===0 && temp){
+      if(projects[i].trigger()){
         
         displayProject(projects[i]);
       }
@@ -490,7 +764,6 @@ const App = () =>{
   }
   function canBuyProject(t){
     if(t.cost <= loadGame.science){
-      loadGame.science -= t.cost;
       t.effect();
       loadGame = JSON.parse(localStorage.getItem("game"));
       saveVar();
@@ -506,44 +779,6 @@ const App = () =>{
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  function adjustCornSeedPrice(){
-    loadGame.cornSeedPrice = (Math.random()*.1+0.01);
-    loadGame.seedPrice[0] = loadGame.cornSeedPrice;
-    localStorage.setItem("game",JSON.stringify(loadGame));
-    manageCrops();
-  } 
-  function adjustWheatSeedPrice(){
-    loadGame.wheatSeedPrice =(Math.random()*.3+.31);
-    loadGame.seedPrice[1] = loadGame.wheatSeedPrice;
-    localStorage.setItem("game",JSON.stringify(loadGame));
-    manageCrops();
-  } 
-  function adjustMelonSeedPrice(){
-    
-    loadGame.melonSeedPrice =(Math.random()*2+2.01);
-    loadGame.seedPrice[2] = loadGame.melonSeedPrice;
-    localStorage.setItem("game",JSON.stringify(loadGame));
-    manageCrops();
-  } 
-  function adjustCornSell(){
-    loadGame.cornSell = (Math.random()*.2+0.11);
-    loadGame.cropSell[0] = loadGame.cornSell;
-    localStorage.setItem("game",JSON.stringify(loadGame));
-    manageCrops();
-  }
-  function adjustWheatSell(){
-    loadGame.wheatSell = (Math.random()+1.00);
-    loadGame.cropSell[1] = loadGame.wheatSell;
-    localStorage.setItem("game",JSON.stringify(loadGame));
-    manageCrops();
-    
-  }
-  function adjustMelonSell(){
-    loadGame.melonSell = (Math.random()*4+4.01);
-    loadGame.cropSell[2] = loadGame.melonSell;
-    localStorage.setItem("game",JSON.stringify(loadGame));
-    manageCrops();
-  }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   var T = 0;
   var T1 = 0;
@@ -610,16 +845,21 @@ const App = () =>{
       window.cancelAnimationFrame(anId);
       anId = true;
       canvas.getContext('2d').clearRect(0,0,canvas.width, canvas.height);
-      if(wildAnimal === 0){
-        loadGame.livestockCount[0] += 1;
-      }
+      getWildAnimal(wildAnimal);
       saveVar();
       setTimeout(() => {beginWildAnimals();}, (Math.random()*5+5)*1000);
       
     }
   }
+  function getWildAnimal(i){
+    if(loadGame.unusedLivestockLand > 0){
+      loadGame.livestockCount[i] += 1;
+      loadGame.unusedLivestockLand -= 1;
+      saveVar();
+    }
+  }
   function createWildAnimal(){
-    var animalColors = ["#FFBDF9","#66422D","#fff8dc"]
+    var animalColors = ["#FFBDF9","#fff8dc","#66422D"]
     var top = Math.random();
     var left = Math.random();
     if(top <0.5){
@@ -654,6 +894,19 @@ const App = () =>{
     loadGame.unusedFarmLand += x
     saveVar();
   }
+  function incrementLivestockLand(x){
+    if(x === -1 && (loadGame.livestockLand <= 0 || loadGame.unusedLivestockLand <= 5)){
+      return;
+    }
+    if(x === 1 && (loadGame.unusedLand <= 5)){
+      return;
+    }
+    
+    loadGame.unusedLand -= (5*x);
+    loadGame.livestockLand += x;
+    loadGame.unusedLivestockLand += 5*x
+    saveVar();
+  }
   function addCropInterval(i){
     
     if(loadGame.farmersCount[i] <= 0){
@@ -668,7 +921,7 @@ const App = () =>{
           }
         }
         loadGame = JSON.parse(localStorage.getItem("game"));
-        manageCrops();
+        saveVar();
       },loadGame.farmerSpeed * 1000/(loadGame.farmersCount[i]));
     }
   }
@@ -710,7 +963,6 @@ const App = () =>{
         if(chance <odds[i]+sum){
           crops[i].sellCrop();
           loadGame = JSON.parse(localStorage.getItem("game"));
-          manageCrops();
           saveVar();
           break;
         }
@@ -722,7 +974,8 @@ const App = () =>{
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function buyFarmer(){
-    if(loadGame.farmerPrice <= loadGame.money){
+    if(loadGame.farmerPrice <= loadGame.money && loadGame.unusedHousing > 0){
+      loadGame.unusedHousing -= 1;
       loadGame.money -= loadGame.farmerPrice;
       loadGame.farmerPrice *= (1+Math.random()*0.1);
       loadGame.totalFarmers +=1;
@@ -755,16 +1008,14 @@ const App = () =>{
         clearInterval(cropTraderInterval);
       }
       addCropTInterval();
-      manageCrops();
       saveVar();
     }
   }
-
   return(
     <>
       <Header/>
       <h2 style = {{fontSize: '1.5rem',fontWeight:'bold', fontFamily:'Times New Roman'}}>
-        Gold:
+        Gold:<span> </span>
         <span id = "money"> {loadGame.money.toFixed(2)}</span>
         <br/>
         Population:<span> </span>
@@ -805,9 +1056,9 @@ const App = () =>{
           
           <br/>
           <b>Livestock</b> <span> </span>
-          <button className = "increment" >-</button> <span> </span>
-          <span id = "farmLand">{loadGame.livestockLand}</span> <span> </span>
-          <button className = "increment" >+</button> <span> </span>
+          <button className = "increment" onClick = {()=>incrementLivestockLand(-1)}>-</button> <span> </span>
+          <span id = "livestockLand">{loadGame.livestockLand}</span> <span> </span>
+          <button className = "increment" onClick = {()=>incrementLivestockLand(1)}>+</button> <span> </span>
           <hr/>
           <div id = "livestockDiv">
             
@@ -826,11 +1077,15 @@ const App = () =>{
 
         </div>
         <div id = "columnB" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>
+          <b>Food</b>
+          <hr/>
+          <div id = "foodDiv">
+            
+          </div>
           <div id = "techDiv">
             <b>Technology</b>
             <hr/>
-            Science:<span> </span>
-            <span id = "science">{loadGame.science}</span>
+
             <div id = "scienceDiv">
             </div>
           </div>

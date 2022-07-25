@@ -1,15 +1,26 @@
 Tech Divisions
 
-1. Neolithic Revolution:
+Each tech besides Neolithic Revolution has a prerequisite tech
+
+1. Neolithic Revolution->Pastoralism/Mining/Pottery:
     - Farm
 
-2. Pastoralism:
+2. Pastoralism->Hunting/Archery:
     - Livestock
     - Add horses
 
-3. Mining:
+3. Mining->Bronze Working/Wheel/Smithing:
     - Mines
     - Warrior
 
-4. Pottery:
+4. Pottery-> Smithing:
     - Granary
+
+5. Hunting:
+    - 
+
+6. Archery
+
+7. Bronze Working
+
+8. Wheel

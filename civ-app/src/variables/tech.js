@@ -1,22 +1,41 @@
 var techs = [];
 
+function triggerA(t){
+    var sFlag = JSON.parse(localStorage.getItem("scienceFlags"));
+    for(let i = 0;i<t.req.length;i++){
+        if(sFlag[t.req[i]]!== 2){
+            return false;
+        }
+    }
+    if(t.flag ===2){
+        return false;
+    }
+    return true;
+}
+
+function buyTech(t){
+    var loadGame = JSON.parse(localStorage.getItem("game"));
+    if(t.cost <= loadGame.science){
+        loadGame.science -= t.cost;
+        t.flag = 2;
+        t.element.parentNode.removeChild(t.element);
+    }
+    localStorage.setItem("game",JSON.stringify(loadGame));
+}
+
 var neolithic = {
     id: "Tech1",
     title: "Neolithic Revolution",
     priceTag: "",
     flag: 0,
     description: "Settle and Start your Civilization",
-    trigger: function(){return true;},
+    trigger: function(){return triggerA(neolithic);},
     element: null,
     cost: 0,
     effect: function(){
-
-        neolithic.flag = 2;
-        neolithic.element.parentNode.removeChild(neolithic.element);
-
+        buyTech(neolithic);
     },
-    next: null,
-    next1: null
+    req: [],
 }
 
 techs.push(neolithic);
@@ -24,38 +43,82 @@ techs.push(neolithic);
 var animalHusbandry = {
     id: "animalHusbandryTech",
     title: "Pastoralism",
-    priceTag: "(300 science): \n",
+    priceTag: "(200 science): \n",
     flag: 0,
     description: "Unlock Livestock; Unlock Horseman",
-    trigger: function(){return true;},
+    trigger: function(){return triggerA(animalHusbandry);},
     element: null,
-    cost: 300,
+    cost: 200,
     effect: function(){
-        animalHusbandry.flag = 2;
-        animalHusbandry.element.parentNode.removeChild(animalHusbandry.element);
+        buyTech(animalHusbandry);
     },
-    next: 0,
-    next1: null
+    req: [0]
 }
 techs.push(animalHusbandry)
+
+var pottery = {
+    id: "potteryTech",
+    title: "Pottery",
+    priceTag: "(250 science): ",
+    flag: 0,
+    description: "Unlock Granary;",
+    trigger: function(){return triggerA(pottery);},
+    element: null,
+    cost: 250,
+    effect: function(){
+        buyTech(pottery);
+    },
+    req: [0]
+}
+techs.push(pottery)
 
 var mining = {
     id: "miningTech",
     title: "Mining",
-    priceTag: "(550 science): ",
+    priceTag: "(400 science): ",
     flag: 0,
     description: "Unlock Mining; Unlock Warrior; Unlocks Buildings",
-    trigger: function(){return true},
+    trigger: function(){return triggerA(mining);},
+    element: null,
+    cost: 400,
+    effect: function(){
+        buyTech(mining);
+    },
+    req: [0]
+}
+techs.push(mining)
+
+var writing = {
+    id: "writingTech",
+    title: "Writing",
+    priceTag: "(550 science): ",
+    flag: 0,
+    description: "Unlock Library",
+    trigger: function(){return triggerA(writing);},
     element: null,
     cost: 550,
     effect: function(){
-        mining.flag = 2;
-        mining.element.parentNode.removeChild(mining.element);
+        buyTech(writing);
     },
-    next: 0,
-    next1: null
+    req: [0]
 }
-techs.push(mining)
+techs.push(writing)
+
+var sailing = {
+    id: "sailingTech",
+    title: "Sailing",
+    priceTag: "(500 science): ",
+    flag: 0,
+    description: "Unlock Fishing",
+    trigger: function(){return triggerA(sailing);},
+    element: null,
+    cost: 500,
+    effect: function(){
+        buyTech(sailing);
+    },
+    req: [0]
+}
+techs.push(sailing)
 
 var archery = {
     id: "archeryTech",
@@ -63,15 +126,14 @@ var archery = {
     priceTag: "(900 science): ",
     flag: 0,
     description: "Unlock Archers",
-    trigger: function(){return true},
+    trigger: function(){return triggerA(archery);},
     element: null,
     cost: 900,
     effect: function(){
         archery.flag = 2;
         archery.element.parentNode.removeChild(archery.element);
     },
-    next: 1,
-    next1: null
+    req: [1]
 }
 techs.push(archery)
 

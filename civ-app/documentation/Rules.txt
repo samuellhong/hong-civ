@@ -1,9 +1,23 @@
 Civilization Simulator
 
 Start with 20 land, where you can initially use to farm
-You can assign your land to be farm land
+You can assign your land to be farm land and grow crops
 You can buy land
 Then you can buy farmers and traders for gold to automatically grow early economy
 
+Science increases every X seconds by population
 Then you can use science to learn early game science divisions (animal husbandry/mining)
-You can also use science to improve farmers/traders/etc...
+You can also use science to improve farmers/traders/etc through projects
+
+
+As your population grows, people start to get hungry:
+    - Every 5 seconds, foodAmount goes down Population*multiplier
+    - You can manually contribute food to foodAmound
+    - If there is 0 foodAmound after 5 seconds, it looks for sufficient food from agriculture and livestock randomly
+    - If can't find sufficient food, science is halted for that duration
+
+For liveStock:
+    - start with nothing, but you can catch wild animals and domesticate them
+    - you can buy breeders, who can breed your animals if you have 2+ (you cannot breed them)
+    - livestock can contribute to foodAmount
+

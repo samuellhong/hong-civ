@@ -35,7 +35,7 @@
   height: 330px;
   width: 300px;
   overflow:hidden;
-  background-color: rgb(76, 232, 227);
+  /*background-color: rgb(76, 232, 227);*/
 }
 #seedDiv{
   
@@ -71,7 +71,7 @@
   font-weight: 400;
   height: 370px;
   width: 300px;
-  background-color: rgb(170, 142, 93);
+  /*background-color: rgb(170, 142, 93);*/
 }
 #animalsDiv{
   font-weight: 400;
@@ -107,6 +107,12 @@
   font-weight: 400;
   height: 370px;
   width: 300px;
+}
+#foodDiv{
+  font-weight: 400;
+  height: 200px;
+  width: 100%;
+  overflow-y: scroll;
 }
 #scienceDiv{
   font-weight: 400;
@@ -166,8 +172,9 @@
   background: -webkit-linear-gradient(top, white, gray);
   background-color: rgb(191, 191, 191);
   font-size: 11px;
-  width: 70px;
+  width: 75px;
   height:20px;
+  padding:0px,
 }
 
 .growCrop{
@@ -190,6 +197,34 @@
   width: 18px;
   height: 18px;
   margin-top:2px;
+  padding: 0px;
+}
+.switch{
+  border: 1px solid black;
+  border-radius: 2px;
+  font-variant-numeric: tabular-nums;
+  background: -webkit-linear-gradient(top, white, gray);
+  background-color: rgb(191, 191, 191);
+  font-size: 11px;
+  width: 50px;
+  height: 20px;
+  margin-top:2px;
+  padding: 0px;
+}
+
+.buildingButton{
+  border: 1px solid black;
+  border-radius: 2px;
+  font-variant-numeric: tabular-nums;
+  background: -webkit-linear-gradient(top, white, gray);
+  background-color: rgb(191, 191, 191);
+  font-size: 11px;
+  width: 120px;
+}
+.buildingButton:hover a{
+  display:block;
+  list-style-type: none;
+  padding-left: 0;
 }
 
 .buyUnitButton{
