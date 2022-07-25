@@ -18,7 +18,7 @@ var tent = {
     description: "[Houses 2 people; Occupies 1 Land]",
     scienceReq: 0,
     projectReq: null,
-    price:[.30],
+    price:[30],
     priceIndex:[0],
     landSpace: 1,
     index: 0,

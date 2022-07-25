@@ -21,27 +21,12 @@ function sellLivestock(i){
     localStorage.setItem("game",JSON.stringify(loadGame));
 }
 
-var pig = {
-    id: "Pig",
-    meat: "Pork",
-    scienceReq: 1,
-    projectReq: null,
-    index: 0,
-    feed: 7,
-    trigger: function(){
-        return triggerA(pig);
-    },
-    price: [15,15],
-    sell: function(){sellLivestock(pig.index)},
-}
-livestock_.push(pig);
-
 var sheep = {
     id: "Sheep",
     meat: "Mutton",
     scienceReq: 1,
     projectReq: null,
-    index: 1,
+    index: 0,
     feed: 5,
     trigger: function(){
         return triggerA(sheep);
@@ -56,7 +41,7 @@ var cattle = {
     meat: "Beef",
     scienceReq: 1,
     projectReq: null,
-    index: 2,
+    index: 1,
     feed: 10,
     trigger: function(){
         return triggerA(cattle);

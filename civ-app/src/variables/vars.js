@@ -3,11 +3,11 @@
 
 let game = {
 
-    money: 10,
+    money: 0,
     population: 0,
     unusedPopulation: 0,
     stage: 0,
-    science: 0,
+    science: 800,
     loadScienceTime: 10000,
     land: 20,
     unusedLand: 20,
@@ -36,7 +36,7 @@ let game = {
     farmLand:0,
     unusedFarmLand:0,
     farmersCount: [0,0,0],
-    farmerPrice: .200,
+    farmerPrice: 200,
     totalFarmers: 0,
     unusedFarmers: 0,
     farmerCount:[0,0,0],
@@ -47,15 +47,15 @@ let game = {
 
     traderSpeed: 4,
 
-    livestockCount:[0,0,0],
+    livestockCount:[0,0],
     livestockPrice: [(Math.random()*15+15),(Math.random()*15+20),(Math.random()*20+25)],
-    livestockBreedChance:[0.1,0.1,0.1],
+    livestockBreedChance:[0.1,0.1],
     totalHerders:0,
     unusedHerders: 0,
-    herderCount:[0,0,0],
+    herderCount:[0,0],
     breedSpeed: 10,
     keepLivestock: 5,
-    storedMeat:[0,0,0],
+    storedMeat:[0,0],
     meatStorage:30,
     meatStorageSpace:30,
 

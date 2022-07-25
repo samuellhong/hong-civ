@@ -49,7 +49,7 @@ var archer = {
     id:"archer",
     price:[3000,10],
     priceIndex:[0,1],
-    scienceReq:3,
+    scienceReq:7,
     range: 5,
     melee: 1,
     strength: 2,

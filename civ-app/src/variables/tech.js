@@ -75,12 +75,12 @@ techs.push(pottery)
 var mining = {
     id: "miningTech",
     title: "Mining",
-    priceTag: "(400 science): ",
+    priceTag: "(250 science): ",
     flag: 0,
     description: "Unlock Mining; Unlock Warrior; Unlocks Buildings",
     trigger: function(){return triggerA(mining);},
     element: null,
-    cost: 400,
+    cost: 250,
     effect: function(){
         buyTech(mining);
     },
@@ -119,6 +119,23 @@ var sailing = {
     req: [0]
 }
 techs.push(sailing)
+
+var hunting = {
+    id: "huntingTech",
+    title: "Hunting",
+    priceTag: "(580 science): ",
+    flag: 0,
+    description: "Unlock Hunting Animals",
+    trigger: function(){return triggerA(hunting);},
+    element: null,
+    cost: 580,
+    effect: function(){
+        hunting.flag = 2;
+        hunting.element.parentNode.removeChild(hunting.element);
+    },
+    req: [1]
+}
+techs.push(hunting)
 
 var archery = {
     id: "archeryTech",

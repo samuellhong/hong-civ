@@ -98,7 +98,7 @@ const App = () =>{
           feed();
           storeExtraCrops();
         }
-      },2000);
+      },40000);
       for(let i = 0;i<crops.length;i++){
         if(scienceFlags[crops[i].scienceReq]===2){
           seedPriceIntervals[i] = setInterval(()=>{
@@ -859,7 +859,7 @@ const App = () =>{
     }
   }
   function createWildAnimal(){
-    var animalColors = ["#FFBDF9","#fff8dc","#66422D"]
+    var animalColors = ["#fff8dc","#66422D"]
     var top = Math.random();
     var left = Math.random();
     if(top <0.5){
@@ -878,7 +878,7 @@ const App = () =>{
       startY = Math.random()*10+150
       rateY = Math.random()*-1.8+0.1;
     }
-    wildAnimal = Math.floor(Math.random()*3);
+    wildAnimal = Math.floor(Math.random()*2);
     color = animalColors[wildAnimal];
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
