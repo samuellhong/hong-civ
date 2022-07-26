@@ -21,7 +21,7 @@ var materials = materials_;
 var scienceFlags = [];
 var militaryFlags = [];
 var projectsFlags = [];
-
+//localStorage.clear();
 if(false){
   localStorage.setItem("game",JSON.stringify(game));
 
@@ -49,28 +49,27 @@ var breedIntervals = [null,null];
 //var miningInterval = [null];
 const resourceString = ["g", "wood", "stone"];
   
-if (localStorage.getItem("game") === "undefined"){
+if (localStorage.getItem("game") === null){
   localStorage.setItem("game",JSON.stringify(game));
 }
-if (localStorage.getItem("scienceFlags") === "undefined"){
+if (localStorage.getItem("scienceFlags") === null){
   for(let i = 0; i<tech.length;i++){
     scienceFlags.push(tech[i].flag);
   }
   localStorage.setItem("scienceFlags",JSON.stringify(scienceFlags));
 }
-if (localStorage.getItem("militaryFlags") === "undefined"){
+if (localStorage.getItem("militaryFlags") === null){
   for(let i = 0; i<army.length;i++){
     militaryFlags.push(army[i].flag);
   }
   localStorage.setItem("militaryFlags",JSON.stringify(militaryFlags));
 }
-if (localStorage.getItem("projectsFlags") === "undefined"){
+if (localStorage.getItem("projectsFlags") === null){
   for(let i = 0; i<projects.length;i++){
     projectsFlags.push(projects[i].flag);
   }
   localStorage.setItem("projectsFlags",JSON.stringify(projectsFlags));
 }
-
 scienceFlags = JSON.parse(localStorage.getItem("scienceFlags"));
 for(let i = 0; i<tech.length;i++){
   tech[i].flag = scienceFlags[i];
