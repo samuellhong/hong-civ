@@ -17,6 +17,7 @@ let game = {
     hungryStatus: 0,
     distributedFood: 0,
     scienceInt: 0,
+    scienceMultiplier: 1,
     storedFood: 0,
 
     housing:0,
@@ -31,7 +32,7 @@ let game = {
     keepCrop: 5,
     storedCrops:[0,0,0],
     cropStorage:30,
-    cropStorageSpace:30,
+    cropStorageSpace:30, 
 
     farmLand:0,
     unusedFarmLand:0,
@@ -53,6 +54,7 @@ let game = {
     totalHerders:0,
     unusedHerders: 0,
     herderCount:[0,0],
+    herderPrice: 400,
     breedSpeed: 10,
     keepLivestock: 5,
     storedMeat:[0,0],
@@ -62,10 +64,18 @@ let game = {
     livestockLand:0,
     unusedLivestockLand:0,
 
-    buildingCount: [0,0],
+    buildingCount: [0,0,0],
 
     totalMilitaryPower: 0,
-    resources: [0,0,0,0,0]
+    resources: [0,0,0,0,0],
+
+    wood:0,
+    stone:0,
+    miningLand:0,
+    unusedMiningLand:0,
+    materialPrice: [(Math.random()*5+10),(Math.random()*7+20)],
+    materialCount: [0,0],
+
 };
 
 export {game};

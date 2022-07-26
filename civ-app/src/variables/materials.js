@@ -1,4 +1,4 @@
-var livestock_ = [];
+var materials_ = [];
 
 function triggerA(t){
     var sFlag = JSON.parse(localStorage.getItem("scienceFlags"));
@@ -11,46 +11,36 @@ function triggerA(t){
     }
     return true;
 }
-function sellLivestock(i){
-    var loadGame = JSON.parse(localStorage.getItem("game"));
-    if(loadGame.livestockCount[i] > 0){
-        loadGame.livestockCount[i] -= 1;
-        loadGame.money += loadGame.livestockPrice[i];
-        loadGame.unusedLivestockLand +=1;
-    }
-    localStorage.setItem("game",JSON.stringify(loadGame));
-}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-var sheep = {
-    id: "Sheep",
-    meat: "Mutton",
-    scienceReq: 1,
+var wood = {
+
+    id: "Wood",
+    scienceReq: 3,
     projectReq: null,
     index: 0,
-    feed: 5,
     trigger: function(){
-        return triggerA(sheep);
-    },
-    price: [15,20],
-    sell: function(){sellLivestock(sheep.index)},
+        return triggerA(wood);
+    }
 }
-livestock_.push(sheep);
+materials_.push(wood);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-var cattle = {
-    id: "Cattle",
-    meat: "Beef",
-    scienceReq: 1,
+var stone = {
+
+    id: "Stone",
+    scienceReq: 3,
     projectReq: null,
     index: 1,
-    feed: 10,
     trigger: function(){
-        return triggerA(cattle);
-    },
-    price: [20,25],
-    sell: function(){sellLivestock(cattle.index)},
+        return triggerA(stone);
+    }
 }
-livestock_.push(cattle);
+materials_.push(stone);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export {livestock_};
+
+
+
+export {materials_};

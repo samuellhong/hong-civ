@@ -12,16 +12,18 @@ function triggerA(t){
     return true;
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var tent = {
     id: "Tent",
-    description: "[Houses 2 people; Occupies 1 Land]",
+    description: "[Houses 1 person; Occupies 1 Land]",
     scienceReq: 0,
     projectReq: null,
     price:[30],
     priceIndex:[0],
     landSpace: 1,
     index: 0,
+    prev: null,
     trigger: function(){
         return triggerA(tent);
     },
@@ -34,8 +36,8 @@ var tent = {
             }
         }
         if(loadGame.unusedLand >0 && temp){
-            loadGame.housing+=2;
-            loadGame.unusedHousing+=2;
+            loadGame.housing+=1;
+            loadGame.unusedHousing+=1;
             loadGame.unusedLand -= 1;
             loadGame.buildingCount[0] += 1;
             for(let i = 0; i<tent.price.length;i++){
@@ -49,7 +51,8 @@ var tent = {
 }
 
 buildings_.push(tent)
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var granary = {
     id: "Granary",
     description: "[Store 100 crops; Occupies 2 Land]",
@@ -59,26 +62,75 @@ var granary = {
     priceIndex:[0],
     landSpace: 2,
     index: 1,
+    prev:null,
     trigger: function(){
         return triggerA(granary);
     },
     effect: function(){
         var loadGame = JSON.parse(localStorage.getItem("game"));
-        var temp = true;
-        for(let i = 0; i<tent.price.length;i++){
-            if(tent.price[i] > loadGame.resources[tent.priceIndex[i]]){
-                temp = false;
-            }
+        if(granary.price[0]> loadGame.money){
+            return;
         }
-        if(loadGame.unusedLand >1 && temp){
-            loadGame.cropStorage+=100;
+        if(loadGame.unusedLand > 1){
+            loadGame.cropStorageSpace+=100;
             loadGame.unusedLand -= 2;
             loadGame.buildingCount[1] += 1;
+            loadGame.money -= granary.price[0];
         }
         localStorage.setItem("game",JSON.stringify(loadGame));
     }
 }
 
 buildings_.push(granary)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var mudhouse = {
+    id: "Mudhouse",
+    description: "[Houses 5 people; Occupies 1 Land]",
+    upgradeDescription: "[Houses 4 more people]",
+    scienceReq: 2,
+    projectReq: null,
+    price:[100],
+    priceIndex:[0],
+    landSpace: 1,
+    index: 2,
+    prev:0,
+    upgradePrice: [80],
+    upgradePriceIndex: [0],
+    trigger: function(){
+        return triggerA(granary);
+    },
+    effect: function(){
+        var loadGame = JSON.parse(localStorage.getItem("game"));
+        if(mudhouse.price[0]> loadGame.money){
+            return;
+        }
+        if(loadGame.unusedLand >0){
+            loadGame.housing+=5;
+            loadGame.unusedHousing+=5;
+            loadGame.unusedLand -= 1;
+            loadGame.buildingCount[2] += 1;
+            loadGame.money -= mudhouse.price[0];
+        }
+        localStorage.setItem("game",JSON.stringify(loadGame));
+    },
+    effect2: function(){
+        var loadGame = JSON.parse(localStorage.getItem("game"));
+        if(mudhouse.upgradePrice[0]> loadGame.money){
+            return;
+        }
+        if(loadGame.buildingCount[0] >0){
+            loadGame.housing+=4;
+            loadGame.unusedHousing+=4;
+            loadGame.buildingCount[2] += 1;
+            loadGame.buildingCount[0] -= 1;
+            loadGame.money -= mudhouse.upgradePrice[0];
+        }
+        localStorage.setItem("game",JSON.stringify(loadGame));
+    }
+}
 
+buildings_.push(mudhouse)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export {buildings_};

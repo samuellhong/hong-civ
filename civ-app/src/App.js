@@ -5,6 +5,7 @@ import {crops_} from './variables/crops.js';
 import {techs} from './variables/tech.js';
 import {army} from './variables/army.js';
 import {livestock_} from './variables/livestock.js';
+import {materials_} from './variables/materials.js';
 import {projects_} from './variables/projects.js';
 import {buildings_} from './variables/buildings.js';
 import Header from './components/Header';
@@ -15,6 +16,7 @@ var tech = techs;
 var military = army;
 var livestock = livestock_;
 var buildings = buildings_;
+var materials = materials_;
 
 var scienceFlags = [];
 var militaryFlags = [];
@@ -42,7 +44,10 @@ var growIntervals = [null,null,null];
 var seedPriceIntervals = [null,null,null];
 var cropPriceIntervals = [null,null,null];
 var livestockPriceIntervals = [null,null,null];
-const resourceString = ["g", "wood", "stone"]
+var breedIntervals = [null,null];
+//var lumberInterval;
+//var miningInterval = [null];
+const resourceString = ["g", "wood", "stone"];
   
 if (localStorage.getItem("game") === "undefined"){
   localStorage.setItem("game",JSON.stringify(game));
@@ -86,6 +91,7 @@ const App = () =>{
     else{
       loadGame.scienceInt = 0;
     }
+    loadGame.scienceInt *= loadGame.scienceMultiplier;
     if(tech[1].flag===2 && status ===0){
       beginWildAnimals();
       status=1;
@@ -132,6 +138,7 @@ const App = () =>{
 
     manageCrops();
     manageLivestock();
+    manageMining();
     manageFood();
     manageTech();
     manageProjects();
@@ -147,8 +154,9 @@ const App = () =>{
     document.getElementById("land").innerHTML = loadGame.land;
     document.getElementById("unusedLand").innerHTML = loadGame.unusedLand;
     document.getElementById("landPrice").innerHTML = loadGame.landPrice.toFixed(2);
-    document.getElementById("farmLand").innerHTML = loadGame.farmLand;
-    document.getElementById("livestockLand").innerHTML = loadGame.livestockLand;
+    document.getElementById("farmLand").innerHTML = loadGame.unusedFarmLand+"/"+loadGame.farmLand;
+    document.getElementById("livestockLand").innerHTML = loadGame.unusedLivestockLand+"/"+loadGame.livestockLand;
+    document.getElementById("miningLand").innerHTML = loadGame.unusedMiningLand+"/"+loadGame.miningLand;
     document.getElementById("totalMilitaryPower").innerHTML = loadGame.totalMilitaryPower;
 
     localStorage.setItem("game",JSON.stringify(loadGame));
@@ -287,13 +295,7 @@ const App = () =>{
   }
 
   useEffect(() => {
-    manageCrops();
-    manageLivestock();
-    manageFood();
-    manageTech();
-    manageBuildings();
-    manageMilitaryUnits();
-    manageProjects();
+    saveVar();
 
     
     
@@ -493,12 +495,24 @@ const App = () =>{
     while(livestockTraderDiv.firstChild){
       livestockTraderDiv.removeChild(livestockTraderDiv.firstChild);
     }
+    if(scienceFlags[1] ===2){
+      var herdButton = document.createElement("button");
+      herdButton.setAttribute("class","buySeed");
+      herdButton.appendChild(document.createTextNode("Herder"));
+      herdButton.onclick = (function(){
+        buyHerder();
+      })
+      herdersDiv.appendChild(herdButton);
+      herdersDiv.appendChild(document.createTextNode(" "+loadGame.totalHerders));
+      herdersDiv.appendChild(document.createElement("br"));
+      herdersDiv.appendChild(document.createTextNode("Price: "+loadGame.herderPrice+"g"));
+      herdersDiv.appendChild(document.createElement("br"));
+    }
     for (let i = 0;i<livestock.length;i++){
       if(livestock[i].trigger()){
         displayLivestock(livestock[i]);
       }
     }
-
   }
   function displayLivestock(t){
     var animalsDiv = document.getElementById("animalsDiv");
@@ -514,6 +528,51 @@ const App = () =>{
     animalsDiv.appendChild(document.createTextNode(" "+loadGame.livestockCount[t.index]));
     animalsDiv.appendChild(document.createElement("br"));
     animalsDiv.appendChild(document.createTextNode("Price: "+loadGame.livestockPrice[t.index].toFixed(2)+"g"))
+    var herdersDiv = document.getElementById("herdersDiv");
+    herdersDiv.appendChild(document.createTextNode(t.id+ " Herders "));
+    var dec = document.createElement("button");
+    dec.appendChild(document.createTextNode("-"));
+    dec.onclick = (function(){
+      addHerder(t.index,-1);
+      loadGame = JSON.parse(localStorage.getItem("game"));
+      saveVar();
+    })
+    dec.setAttribute("class","increment");
+    herdersDiv.appendChild(dec);
+    herdersDiv.appendChild(document.createTextNode(" "+loadGame.herderCount[t.index]+" "));
+    var dec2 = document.createElement("button");
+    dec2.appendChild(document.createTextNode("+"));
+    dec2.setAttribute("class","increment");
+    dec2.onclick = (function(){
+      addHerder(t.index,1);
+      loadGame = JSON.parse(localStorage.getItem("game"));
+      saveVar();
+    })
+    herdersDiv.appendChild(dec2);
+    herdersDiv.appendChild(document.createElement("br"));
+  }
+
+  function manageMining(){
+    var materialsDiv = document.getElementById("materialsDiv");
+    while (materialsDiv.firstChild) {
+      materialsDiv.removeChild(materialsDiv.firstChild);
+    }
+    for(let i =0;i<materials.length;i++){
+      if(materials[i].trigger()){
+        displayMining(materials[i]);
+      }
+    }
+  }
+  function displayMining(t){
+    var materialsDiv = document.getElementById("materialsDiv");
+    var matButton = document.createElement("button");
+    matButton.setAttribute("class","buySeed");
+    matButton.appendChild(document.createTextNode("Sell"+t.id));
+    materialsDiv.appendChild(matButton);
+    materialsDiv.appendChild(document.createTextNode(" "+loadGame.materialCount[t.index]));
+    materialsDiv.appendChild(document.createElement("br"));
+    materialsDiv.appendChild(document.createTextNode("Price: "+loadGame.materialPrice[t.index].toFixed(2)+"g"));
+    materialsDiv.appendChild(document.createElement("br"));
   }
 
   function manageFood(){
@@ -650,7 +709,30 @@ const App = () =>{
     }
     
     buildingDiv.appendChild(button);
-    buildingDiv.appendChild(document.createTextNode(" "+loadGame.buildingCount[t.index]));
+    buildingDiv.appendChild(document.createTextNode(" "+loadGame.buildingCount[t.index]+" "));
+    if(t.prev !== null){
+      var button2 = document.createElement("button");
+      button2.setAttribute("class","buildingButton");
+      var description2 = document.createElement("a");
+      description2.setAttribute("class","ghostLabel");
+      description2.appendChild(document.createTextNode(t.upgradeDescription));
+      
+      button2.onclick = function(){
+        t.effect2();
+        loadGame = JSON.parse(localStorage.getItem("game"));
+        saveVar();
+      }
+      button2.appendChild(document.createTextNode("Upgrade"+buildings[t.prev].id))
+      button2.appendChild(description2);
+      buildingDiv.appendChild(button2);
+      buildingDiv.appendChild(document.createElement("br"));
+      buildingDiv.appendChild(document.createTextNode("Upgrade: "));
+      for(let i =0; i<t.upgradePrice.length; i++){
+        buildingDiv.appendChild(document.createTextNode(t.upgradePrice[i]));
+        buildingDiv.appendChild(document.createTextNode(resourceString[t.upgradePriceIndex[i]]+" "));
+      }
+    }
+    
     buildingDiv.appendChild(document.createElement("br"));
     buildingDiv.appendChild(document.createTextNode("Price: "));
     for(let i =0; i<t.price.length; i++){
@@ -895,10 +977,10 @@ const App = () =>{
     saveVar();
   }
   function incrementLivestockLand(x){
-    if(x === -1 && (loadGame.livestockLand <= 0 || loadGame.unusedLivestockLand <= 5)){
+    if(x === -1 && (loadGame.livestockLand <= 0 || loadGame.unusedLivestockLand <= 4)){
       return;
     }
-    if(x === 1 && (loadGame.unusedLand <= 5)){
+    if(x === 1 && (loadGame.unusedLand <= 4)){
       return;
     }
     
@@ -999,8 +1081,9 @@ const App = () =>{
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   function buyCropTrader(){
-    if(loadGame.traderPrice <= loadGame.money){
+    if(loadGame.traderPrice <= loadGame.money && loadGame.unusedHousing>0){
       loadGame.money -= loadGame.traderPrice;
+      loadGame.unusedHousing -= 1;
       loadGame.traderPrice *= (1+Math.random()*0.1);
       loadGame.cropTraders +=1;
       loadGame.population += 1;
@@ -1009,6 +1092,54 @@ const App = () =>{
       }
       addCropTInterval();
       saveVar();
+    }
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  function buyHerder(){
+    if(loadGame.herderPrice <= loadGame.money && loadGame.unusedHousing > 0){
+      loadGame.unusedHousing -= 1;
+      loadGame.money -= loadGame.herderPrice;
+      loadGame.farmerPrice *= (1+Math.random()*0.1);
+      loadGame.totalHerders +=1;
+      loadGame.unusedHerders +=1;
+      loadGame.population += 1;
+      saveVar()
+    }
+  }
+  function addHerder(i,b){
+    if((loadGame.unusedHerders > 0 && b === 1) || (loadGame.herderCount[i] > 0 && b === -1)){
+      loadGame.unusedHerders -= b;
+      loadGame.herderCount[i] += b;
+      if(growIntervals[i] !== null){
+        clearInterval(breedIntervals[i]);
+      }
+      addBreedInterval(i);
+      saveVar();
+    }
+  }
+  function addBreedInterval(i){
+    
+    if(loadGame.herderCount[i] <= 0){
+      breedIntervals[i] = setInterval(() => {},loadGame.farmerSpeed * 1000/(loadGame.farmersCount[i]));
+    }
+    else{
+      breedIntervals[i] = setInterval(() => {
+        if(scienceFlags[1]===2){
+          if(loadGame.livestockCount[i] >=2){
+            var tries = parseInt(loadGame.livestockCount[i]/2);
+            var chance;
+            for(let j = 0; j<tries;j++){
+              chance = Math.random()
+              if (chance < loadGame.livestockBreedChance[i] && loadGame.unusedLivestockLand > 0){
+                loadGame.livestockCount[i] += 1;
+                loadGame.unusedLivestockLand -= 1;
+              }
+            }
+          }
+        }
+        saveVar();
+      },loadGame.breedSpeed * 1000/(loadGame.herderCount[i]));
     }
   }
   return(
@@ -1043,7 +1174,7 @@ const App = () =>{
         <div id = "columnA" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>
           <b>Agriculture</b> <span> </span>
           <button className = "increment" onClick = {()=>incrementFarmLand(-1)}>-</button> <span> </span>
-          <span id = "farmLand">{loadGame.farmLand}</span> <span> </span>
+          <span id = "farmLand">{loadGame.unusedFarmLand}/{loadGame.farmLand}</span> <span> </span>
           <button className = "increment" onClick = {()=>incrementFarmLand(1)}>+</button> <span> </span>
           <hr/>
           
@@ -1057,7 +1188,7 @@ const App = () =>{
           <br/>
           <b>Livestock</b> <span> </span>
           <button className = "increment" onClick = {()=>incrementLivestockLand(-1)}>-</button> <span> </span>
-          <span id = "livestockLand">{loadGame.livestockLand}</span> <span> </span>
+          <span id = "livestockLand">{loadGame.unusedLivestockLand}/{loadGame.livestockLand}</span> <span> </span>
           <button className = "increment" onClick = {()=>incrementLivestockLand(1)}>+</button> <span> </span>
           <hr/>
           <div id = "livestockDiv">
@@ -1069,10 +1200,13 @@ const App = () =>{
           </div>
 
           <br/>
-
-          <div id = "miningDiv">
-          <b>Mining</b>
+          <b>Mining</b> <span> </span>
+          <button className = "increment" onClick = {()=>incrementLivestockLand(-1)}>-</button> <span> </span>
+          <span id = "miningLand">{loadGame.unusedMiningLand}/{loadGame.miningLand}</span> <span> </span>
+          <button className = "increment" onClick = {()=>incrementLivestockLand(1)}>+</button> <span> </span>
           <hr/>
+          <div id = "miningDiv">
+            <div id = "materialsDiv"></div>
           </div>
 
         </div>
