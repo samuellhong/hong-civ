@@ -45,6 +45,7 @@
   position:relative;
   float:left;
   overflow-y: scroll;
+  
 }
 
 #cropDiv{
@@ -71,6 +72,7 @@
   font-weight: 400;
   height: 370px;
   width: 300px;
+  
   /*background-color: rgb(170, 142, 93);*/
 }
 #animalsDiv{
@@ -87,7 +89,8 @@
   width: 140px;
   border:solid 1px;
   float:right;
-  background-color: rgb(29, 175, 29);
+  background-image: url(./images/land2.jpg);
+  /*background-color: rgb(29, 175, 29);*/
 }
 #herdersDiv{
   font-weight: 400;
@@ -121,23 +124,28 @@
   height: 200px;
   width: 100%;
   overflow-y: scroll;
+  
 }
 #scienceDiv{
   font-weight: 400;
   height: 300px;
   width: 100%;
   overflow-y: scroll;
+  
 }
 #projectDiv{
   font-weight: 400;
   height: 370px;
   width: 100%;
+  
 }
 #pDiv{
   font-weight: 400;
   height: 370px;
   width: 100%;
   overflow-y: scroll;
+  
+  
 }
 #buildingDiv{
   font-weight: 400;
@@ -161,6 +169,7 @@
   height: 50px;
   width: 100%;
   margin-bottom: 3px;
+  background-image: url(./images/science2.jpg);
 }
 .improvementButton{
   border: 1px solid black;

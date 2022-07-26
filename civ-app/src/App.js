@@ -22,7 +22,7 @@ var scienceFlags = [];
 var militaryFlags = [];
 var projectsFlags = [];
 
-if(true){
+if(false){
   localStorage.setItem("game",JSON.stringify(game));
 
   for(let i = 0; i<tech.length;i++){
@@ -504,6 +504,29 @@ const App = () =>{
       })
       herdersDiv.appendChild(herdButton);
       herdersDiv.appendChild(document.createTextNode(" "+loadGame.totalHerders));
+      for(let i =loadGame.totalHerders.toString().length;i<9;i++){
+        herdersDiv.appendChild(document.createTextNode('\u00A0\u00A0'));
+      }
+      herdersDiv.appendChild(document.createTextNode("Keep "));
+      var dec = document.createElement("button");
+      dec.setAttribute("class", "increment");
+      dec.appendChild(document.createTextNode("-"));
+      dec.onclick = function(){
+        if(loadGame.keepLivestock >0){
+          loadGame.keepLivestock -=1;
+          saveVar();
+        }
+      }
+      herdersDiv.appendChild(dec);
+      herdersDiv.appendChild(document.createTextNode(" "+loadGame.keepLivestock+" "));
+      var dec2 = document.createElement("button");
+      dec2.setAttribute("class", "increment");
+      dec2.appendChild(document.createTextNode("+"));
+      dec2.onclick = function(){
+        loadGame.keepLivestock +=1;
+        saveVar();
+      }
+      herdersDiv.appendChild(dec2);
       herdersDiv.appendChild(document.createElement("br"));
       herdersDiv.appendChild(document.createTextNode("Price: "+loadGame.herderPrice+"g"));
       herdersDiv.appendChild(document.createElement("br"));
@@ -610,11 +633,16 @@ const App = () =>{
   }
 
   function manageTech(){
+    var scDiv = document.getElementById("scienceScore");
+    while (scDiv.firstChild) {
+      scDiv.removeChild(scDiv.firstChild);
+    }
+    
     var scienceDiv = document.getElementById("scienceDiv");
     while (scienceDiv.firstChild) {
       scienceDiv.removeChild(scienceDiv.firstChild);
     }
-    scienceDiv.appendChild(document.createTextNode("Science: "+loadGame.science+" (+"+loadGame.scienceInt+")"));
+    scDiv.appendChild(document.createTextNode("Science: "+loadGame.science+" (+"+loadGame.scienceInt+")"));
     for(let i = 0;i<tech.length;i++){
       if(tech[i].trigger()){
         displayTech(tech[i]);
@@ -625,6 +653,7 @@ const App = () =>{
   function displayTech(t){
     
     var tempdiv = document.getElementById("scienceDiv");
+    
     t.element = document.createElement("button");
     t.element.setAttribute("id", t.id);
     t.element.setAttribute("class", "scienceButton");
@@ -647,6 +676,7 @@ const App = () =>{
     t.element.onclick = (function(){canBuyScience(t)});
     
     tempdiv.appendChild(t.element);
+    
   }
 
   function canBuyScience(t){
@@ -812,6 +842,7 @@ const App = () =>{
     while (projectsDiv.firstChild) {
       projectsDiv.removeChild(projectsDiv.firstChild);
     }
+    
     for(let i = 0;i<projects.length;i++){
       
       if(projects[i].trigger()){
@@ -825,6 +856,7 @@ const App = () =>{
     var tempDiv = document.getElementById("pDiv");
 
     t.element = document.createElement("button");
+    
     t.element.setAttribute("id", t.id);
     t.element.setAttribute("class","scienceButton");
     var span = document.createElement("span");
@@ -843,6 +875,7 @@ const App = () =>{
     t.element.append(span2);
     t.element.onclick = (function(){canBuyProject(t)});
     tempDiv.appendChild(t.element);
+    
   }
   function canBuyProject(t){
     if(t.cost <= loadGame.science){
@@ -890,6 +923,7 @@ const App = () =>{
     var canvas = document.getElementById("livestockConfigDiv");
     canvas.width = "140";
     canvas.height = "140";
+    
     canvas.addEventListener("mousedown", function(e){
       getMousePosition(canvas,e);
     });
@@ -918,7 +952,7 @@ const App = () =>{
     let y = event.clientY - rect.top;
     var x0 = startX+T;
     var y0 = startY+T1;
-    if(Math.sqrt((x0-x)**2+(y0-y)**2)<7){
+    if(Math.sqrt((x0-x)**2+(y0-y)**2)<7 && loadGame.unusedLivestockLand > 0){
       canvas.getContext('2d').clearRect(0,0,canvas.width, canvas.height);
       T = 0;
       T1 = 0;
@@ -934,11 +968,9 @@ const App = () =>{
     }
   }
   function getWildAnimal(i){
-    if(loadGame.unusedLivestockLand > 0){
-      loadGame.livestockCount[i] += 1;
-      loadGame.unusedLivestockLand -= 1;
-      saveVar();
-    }
+    loadGame.livestockCount[i] += 1;
+    loadGame.unusedLivestockLand -= 1;
+    saveVar();
   }
   function createWildAnimal(){
     var animalColors = ["#fff8dc","#66422D"]
@@ -987,6 +1019,19 @@ const App = () =>{
     loadGame.unusedLand -= (5*x);
     loadGame.livestockLand += x;
     loadGame.unusedLivestockLand += 5*x
+    saveVar();
+  }
+  function incrementMiningLand(x){
+    if(x === -1 && (loadGame.miningLand <= 0 || loadGame.unusedMiningLand <= 2)){
+      return;
+    }
+    if(x === 1 && (loadGame.unusedLand <= 2)){
+      return;
+    }
+    
+    loadGame.unusedLand -= (3*x);
+    loadGame.miningLand += x;
+    loadGame.unusedMiningLand += 3*x
     saveVar();
   }
   function addCropInterval(i){
@@ -1201,9 +1246,9 @@ const App = () =>{
 
           <br/>
           <b>Mining</b> <span> </span>
-          <button className = "increment" onClick = {()=>incrementLivestockLand(-1)}>-</button> <span> </span>
+          <button className = "increment" onClick = {()=>incrementMiningLand(-1)}>-</button> <span> </span>
           <span id = "miningLand">{loadGame.unusedMiningLand}/{loadGame.miningLand}</span> <span> </span>
-          <button className = "increment" onClick = {()=>incrementLivestockLand(1)}>+</button> <span> </span>
+          <button className = "increment" onClick = {()=>incrementMiningLand(1)}>+</button> <span> </span>
           <hr/>
           <div id = "miningDiv">
             <div id = "materialsDiv"></div>
@@ -1219,9 +1264,8 @@ const App = () =>{
           <div id = "techDiv">
             <b>Technology</b>
             <hr/>
-
-            <div id = "scienceDiv">
-            </div>
+            <div id = "scienceScore"></div>
+            <div id = "scienceDiv"></div>
           </div>
           <div id = "projectDiv">
             <b>Projects</b>
