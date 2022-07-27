@@ -157,7 +157,8 @@ const App = () =>{
     document.getElementById("farmLand").innerHTML = loadGame.unusedFarmLand+"/"+loadGame.farmLand;
     document.getElementById("livestockLand").innerHTML = loadGame.unusedLivestockLand+"/"+loadGame.livestockLand;
     document.getElementById("miningLand").innerHTML = loadGame.unusedMiningLand+"/"+loadGame.miningLand;
-    document.getElementById("totalMilitaryPower").innerHTML = loadGame.currentMilitaryPower.toFixed(2)+"/"+loadGame.totalMilitaryPower.toFixed(2);
+    document.getElementById("totalMilitaryPower").innerHTML = loadGame.totalMilitaryPower.toFixed(2)+" ("+loadGame.currentMilitaryPower.toFixed(2)+")";
+    document.getElementById("militaryHousing").innerHTML = loadGame.militaryHousing+" ("+loadGame.militaryUnusedHousing+")";
 
     localStorage.setItem("game",JSON.stringify(loadGame));
 
@@ -1379,6 +1380,9 @@ const App = () =>{
             
             Total Power:<span> </span>
             <span id = "totalMilitaryPower">{loadGame.currentMilitaryPower}/{loadGame.totalMilitaryPower}</span>
+            <br/>
+            Housing:<span> </span>
+            <span id = "militaryHousing"></span>
             <div id = "militaryUnitsDiv"> </div>
           </div>
 
