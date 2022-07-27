@@ -3,11 +3,11 @@
 
 let game = {
 
-    money: 0,
+    money: 10000,
     population: 0,
     unusedPopulation: 0,
     stage: 0,
-    science: 0,
+    science: 1000,
     loadScienceTime: 10000,
     land: 20,
     unusedLand: 20,
@@ -60,6 +60,8 @@ let game = {
     storedMeat:[0,0],
     meatStorage:30,
     meatStorageSpace:30,
+    livestockTraders: 0,
+    livestockTraderStatus:0,
 
     livestockLand:0,
     unusedLivestockLand:0,
@@ -67,7 +69,19 @@ let game = {
     buildingCount: [0,0,0],
 
     totalMilitaryPower: 0,
+    currentMilitaryPower: 0,
+    currentMilitaryUnits: [0,0,0],
+    currentMilitaryValues: [[],[],[]],
     resources: [0,0,0,0,0],
+
+    militaryUnits: [0,0,0],
+    militaryValues: [[],[],[]],
+
+    enemyMilitaryUnits: [0,0,0],
+    enemyMilitaryValues: [[],[],[]],
+
+    militaryHousing: 5,
+    militaryUnusedHousing: 5,
 
     wood:0,
     stone:0,
@@ -76,6 +90,7 @@ let game = {
     materialPrice: [(Math.random()*5+10),(Math.random()*7+20)],
     materialCount: [0,0],
 
+    
 };
 
 export {game};

@@ -22,7 +22,7 @@ var scienceFlags = [];
 var militaryFlags = [];
 var projectsFlags = [];
 //localStorage.clear();
-if(false){
+if(true){
   localStorage.setItem("game",JSON.stringify(game));
 
   for(let i = 0; i<tech.length;i++){
@@ -39,6 +39,7 @@ if(false){
   localStorage.setItem("projectsFlags",JSON.stringify(projectsFlags));
 }
 var cropTraderInterval;
+var livestockTraderInterval;
 var scienceInterval;
 var growIntervals = [null,null,null];
 var seedPriceIntervals = [null,null,null];
@@ -156,7 +157,7 @@ const App = () =>{
     document.getElementById("farmLand").innerHTML = loadGame.unusedFarmLand+"/"+loadGame.farmLand;
     document.getElementById("livestockLand").innerHTML = loadGame.unusedLivestockLand+"/"+loadGame.livestockLand;
     document.getElementById("miningLand").innerHTML = loadGame.unusedMiningLand+"/"+loadGame.miningLand;
-    document.getElementById("totalMilitaryPower").innerHTML = loadGame.totalMilitaryPower;
+    document.getElementById("totalMilitaryPower").innerHTML = loadGame.currentMilitaryPower.toFixed(2)+"/"+loadGame.totalMilitaryPower.toFixed(2);
 
     localStorage.setItem("game",JSON.stringify(loadGame));
 
@@ -529,7 +530,41 @@ const App = () =>{
       herdersDiv.appendChild(document.createElement("br"));
       herdersDiv.appendChild(document.createTextNode("Price: "+loadGame.herderPrice+"g"));
       herdersDiv.appendChild(document.createElement("br"));
+      var trader = document.createElement("button");
+      trader.setAttribute("class","buySeed");
+      trader.appendChild(document.createTextNode("Trader"));
+      trader.onclick = (function(){
+        buyLivestockTrader();
+      })
+      livestockTraderDiv.appendChild(trader);
+
+      livestockTraderDiv.appendChild(document.createTextNode(" "+loadGame.livestockTraders+" "));
+      var switchBtn = document.createElement("button");
+      switchBtn.setAttribute("class","switch");
+      if(loadGame.livestockTraderStatus === 1){
+        switchBtn.appendChild(document.createTextNode("Active"));
+      }
+      else{
+        switchBtn.appendChild(document.createTextNode("Sleep"));
+      }
+      switchBtn.onclick = function(){
+        if(livestockTraderInterval){
+          clearInterval(livestockTraderInterval);
+        }
+        if(loadGame.livestockTraderStatus === 1){
+          loadGame.livestockTraderStatus = 0
+        }
+        else{
+          loadGame.livestockTraderStatus = 1
+          addLivestockTInterval();
+        }
+        saveVar();
+      }
+      livestockTraderDiv.appendChild(switchBtn);
+      livestockTraderDiv.appendChild(document.createElement("br"));
+      livestockTraderDiv.appendChild(document.createTextNode("Price: "+loadGame.traderPrice.toFixed(2) +"g"));
     }
+    
     for (let i = 0;i<livestock.length;i++){
       if(livestock[i].trigger()){
         displayLivestock(livestock[i]);
@@ -778,7 +813,7 @@ const App = () =>{
       militaryDiv.removeChild(militaryDiv.firstChild);
     }
     for(let i = 0;i<military.length;i++){
-      if(scienceFlags[military[i].scienceReq]===2){
+      if(military[i].trigger()){
         displayMilitaryUnit(military[i]);
       }
     }
@@ -787,16 +822,14 @@ const App = () =>{
   function displayMilitaryUnit(t){
     
     var tempdiv = document.getElementById("militaryUnitsDiv");
-    t.element = document.createElement("div");
     var button = document.createElement("button");
     
-    t.element.setAttribute("id", t.id);
     button.setAttribute("class", "buyUnitButton");
     var span = document.createElement("a");
     var title = document.createTextNode(t.id);
     span.appendChild(title);
     button.appendChild(span);
-    t.element.appendChild(button);
+    tempdiv.appendChild(button);
 
     var list = document.createElement("ul");
     list.setAttribute("class", "ghostLabel");
@@ -810,30 +843,30 @@ const App = () =>{
     list.append(document.createElement("br"));
     list.append(document.createElement("li").appendChild(document.createTextNode("Mobility: " + t.mobility)));
     button.appendChild(list);
-
-    t.element.appendChild(document.createElement("br"));
-    var cost = document.createTextNode("Cost: ");
-    t.element.appendChild(cost);
+    tempdiv.appendChild(button);
+    tempdiv.appendChild(document.createTextNode(" "+loadGame.militaryUnits[t.index]+" "));
+    var assign = document.createElement("button");
+    assign.appendChild(document.createTextNode(">"));
+    assign.setAttribute("class","increment");
+    assign.onclick = function(){
+      assignToArmy(t.index);
+      saveVar();
+    }
+    tempdiv.appendChild(assign);
+    tempdiv.appendChild(document.createTextNode(" "+loadGame.currentMilitaryUnits[t.index]+" "));
+    tempdiv.appendChild(document.createElement("br"));
+    tempdiv.appendChild(document.createTextNode("Price: "));
     for(let i =0; i<t.price.length; i++){
-      t.element.appendChild(document.createTextNode(t.price[i]));
-      t.element.appendChild(document.createTextNode(resourceString[t.priceIndex[i]]+" "));
+      tempdiv.appendChild(document.createTextNode(t.price[i]));
+      tempdiv.appendChild(document.createTextNode(resourceString[t.priceIndex[i]]+" "));
     }
-    t.element.onclick = (function(){canBuyUnit(t)});
-    tempdiv.appendChild(t.element);
-  }
-  function canBuyUnit(t){
-    var canBuy = true;
-    for(let i = 0;i<t.price.length; i++){
-      if(i===0 && t.price[i]>loadGame.money){
-        canBuy = false;
-        return;
-      }
-    }
-    if(canBuy){
-      ///ADD POWER
-      loadGame.money -=t.price[0];
-    }
-    saveVar();
+    button.onclick = (function(){
+      t.train();
+      loadGame = JSON.parse(localStorage.getItem("game"));
+      saveVar();
+    });
+    tempdiv.appendChild(document.createElement("br"));
+    
   }
   
   function manageProjects(){
@@ -1186,6 +1219,66 @@ const App = () =>{
       },loadGame.breedSpeed * 1000/(loadGame.herderCount[i]));
     }
   }
+  function buyLivestockTrader(){
+    if(loadGame.traderPrice <= loadGame.money && loadGame.unusedHousing>0){
+      loadGame.money -= loadGame.traderPrice;
+      loadGame.unusedHousing -= 1;
+      loadGame.traderPrice *= (1+Math.random()*0.1);
+      loadGame.livestockTraders +=1;
+      loadGame.population += 1;
+      if(livestockTraderInterval){
+        clearInterval(livestockTraderInterval);
+      }
+      addLivestockTInterval();
+      saveVar();
+    }
+  }
+  function addLivestockTInterval(){
+    if(loadGame.livestockTraders <= 0){
+      cropTraderInterval = setInterval(() => {},loadGame.traderSpeed * 1000/(loadGame.livestockTraders));
+    }
+    else{
+      cropTraderInterval = setInterval(() => {
+        sellLivestock();
+      },loadGame.traderSpeed * 1000/(loadGame.livestockTraders));
+    }
+  }
+  function sellLivestock(){
+    var totalLivestock = 0;
+    for(let i =0;i<livestock.length;i++){
+      totalLivestock += loadGame.livestockCount[i];
+    }
+    if (totalLivestock > 0){
+      var odds = []
+      for(let i =0;i<livestock.length;i++){
+        odds.push(loadGame.livestockCount[i]/totalLivestock)
+      }
+      const chance = Math.random();
+      var sum = 0;
+      for(let i =0;i<livestock.length;i++){
+        if(chance <odds[i]+sum){
+          livestock[i].sellLivestock();
+          loadGame = JSON.parse(localStorage.getItem("game"));
+          saveVar();
+          break;
+        }
+        else{
+          sum += odds[i];
+        }
+      }
+    }
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  function assignToArmy(i){
+    if(loadGame.militaryUnits[i] > 0){
+      loadGame.militaryUnits[i]-=1;
+      loadGame.currentMilitaryUnits[i] +=1;
+      var power = loadGame.militaryValues[i].pop();
+      (loadGame.currentMilitaryValues[i]).push(power);
+      loadGame.currentMilitaryPower += power;
+    }
+  }
   return(
     <>
       <Header/>
@@ -1285,10 +1378,8 @@ const App = () =>{
           <div id = "militaryDiv">
             
             Total Power:<span> </span>
-            <span id = "totalMilitaryPower">{loadGame.totalMilitaryPower}</span>
-            <div id = "militaryUnitsDiv">
-
-            </div>
+            <span id = "totalMilitaryPower">{loadGame.currentMilitaryPower}/{loadGame.totalMilitaryPower}</span>
+            <div id = "militaryUnitsDiv"> </div>
           </div>
 
         </div>

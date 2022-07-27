@@ -89,8 +89,8 @@
   width: 140px;
   border:solid 1px;
   float:right;
-  background-image: url(./images/land2.jpg);
-  /*background-color: rgb(29, 175, 29);*/
+  /*background-image: url(./images/land2.jpg);*/
+  background-color: rgb(29, 175, 29);
 }
 #herdersDiv{
   font-weight: 400;
@@ -157,6 +157,11 @@
   font-weight: 400;
   height: 370px;
   width: 100%;
+}
+#militaryUnitsDiv{
+  font-weight: 400;
+  height: 370px;
+  width: 100%;
   overflow-y: scroll;
 }
 
@@ -169,7 +174,7 @@
   height: 50px;
   width: 100%;
   margin-bottom: 3px;
-  background-image: url(./images/science2.jpg);
+  /*background-image: url(./images/science2.jpg);*/
 }
 .improvementButton{
   border: 1px solid black;

@@ -64,7 +64,7 @@ var pottery = {
     title: "Pottery",
     priceTag: "(250 science): ",
     flag: 0,
-    description: "Unlock Granary;",
+    description: "Unlock Granary; Unlock Mudhouse",
     trigger: function(){return triggerA(pottery);},
     element: null,
     cost: 250,
@@ -96,12 +96,12 @@ techs.push(mining)
 var writing = {
     id: "writingTech",
     title: "Writing",
-    priceTag: "(500 science): ",
+    priceTag: "(700 science): ",
     flag: 0,
     description: "Unlock Library",
     trigger: function(){return triggerA(writing);},
     element: null,
-    cost: 500,
+    cost: 700,
     effect: function(){
         buyTech(writing);
     },
@@ -113,12 +113,12 @@ techs.push(writing)
 var sailing = {
     id: "sailingTech",
     title: "Sailing",
-    priceTag: "(500 science): ",
+    priceTag: "(700 science): ",
     flag: 0,
     description: "Unlock Fishing",
     trigger: function(){return triggerA(sailing);},
     element: null,
-    cost: 500,
+    cost: 700,
     effect: function(){
         buyTech(sailing);
     },
@@ -130,12 +130,12 @@ techs.push(sailing)
 var hunting = {
     id: "huntingTech",
     title: "Hunting",
-    priceTag: "(580 science): ",
+    priceTag: "(880 science): ",
     flag: 0,
     description: "Unlock Hunting Animals",
     trigger: function(){return triggerA(hunting);},
     element: null,
-    cost: 580,
+    cost: 880,
     effect: function(){
         hunting.flag = 2;
         hunting.element.parentNode.removeChild(hunting.element);
