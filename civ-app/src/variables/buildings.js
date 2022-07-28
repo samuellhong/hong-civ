@@ -24,6 +24,7 @@ var tent = {
     landSpace: 1,
     index: 0,
     prev: null,
+    manpower: 0,
     trigger: function(){
         return triggerA(tent);
     },
@@ -63,6 +64,7 @@ var granary = {
     landSpace: 2,
     index: 1,
     prev:null,
+    manpower: 100,
     trigger: function(){
         return triggerA(granary);
     },
@@ -71,11 +73,12 @@ var granary = {
         if(granary.price[0]> loadGame.money){
             return;
         }
-        if(loadGame.unusedLand > 1){
+        if(loadGame.unusedLand > 1 && loadGame.manPower > granary.manpower){
             loadGame.cropStorageSpace+=100;
             loadGame.unusedLand -= 2;
             loadGame.buildingCount[1] += 1;
             loadGame.money -= granary.price[0];
+            loadGame.manPower -= granary.manpower;
         }
         localStorage.setItem("game",JSON.stringify(loadGame));
     }
@@ -97,6 +100,8 @@ var mudhouse = {
     prev:0,
     upgradePrice: [80],
     upgradePriceIndex: [0],
+    upgradeManpower: 150,
+    manpower: 200,
     trigger: function(){
         return triggerA(granary);
     },
@@ -105,12 +110,13 @@ var mudhouse = {
         if(mudhouse.price[0]> loadGame.money){
             return;
         }
-        if(loadGame.unusedLand >0){
+        if(loadGame.unusedLand >0 && loadGame.manPower > mudhouse.manpower){
             loadGame.housing+=5;
             loadGame.unusedHousing+=5;
             loadGame.unusedLand -= 1;
             loadGame.buildingCount[2] += 1;
             loadGame.money -= mudhouse.price[0];
+            loadGame.manPower -= mudhouse.manpower;
         }
         localStorage.setItem("game",JSON.stringify(loadGame));
     },
@@ -119,12 +125,13 @@ var mudhouse = {
         if(mudhouse.upgradePrice[0]> loadGame.money){
             return;
         }
-        if(loadGame.buildingCount[0] >0){
+        if(loadGame.buildingCount[0] >0 && loadGame.manPower > mudhouse.upgradeManpower){
             loadGame.housing+=4;
             loadGame.unusedHousing+=4;
             loadGame.buildingCount[2] += 1;
             loadGame.buildingCount[0] -= 1;
             loadGame.money -= mudhouse.upgradePrice[0];
+            loadGame.manPower -= mudhouse.manpower;
         }
         localStorage.setItem("game",JSON.stringify(loadGame));
     }

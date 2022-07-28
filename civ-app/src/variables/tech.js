@@ -29,6 +29,7 @@ var neolithic = {
     title: "Neolithic Revolution",
     priceTag: "",
     flag: 0,
+    index: 0,
     description: "Settle and Start your Civilization",
     trigger: function(){return triggerA(neolithic);},
     element: null,
@@ -47,6 +48,7 @@ var animalHusbandry = {
     title: "Pastoralism",
     priceTag: "(200 science): \n",
     flag: 0,
+    index: 1,
     description: "Unlock Livestock; Unlock Horseman",
     trigger: function(){return triggerA(animalHusbandry);},
     element: null,
@@ -64,6 +66,7 @@ var pottery = {
     title: "Pottery",
     priceTag: "(250 science): ",
     flag: 0,
+    index: 2,
     description: "Unlock Granary; Unlock Mudhouse",
     trigger: function(){return triggerA(pottery);},
     element: null,
@@ -81,7 +84,8 @@ var mining = {
     title: "Mining",
     priceTag: "(250 science): ",
     flag: 0,
-    description: "Unlock Mining; Unlock Warrior",
+    index: 3,
+    description: "Unlock Mining; Unlock Warrior; Unlock Stone Tools",
     trigger: function(){return triggerA(mining);},
     element: null,
     cost: 250,
@@ -93,21 +97,22 @@ var mining = {
 techs.push(mining)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-var writing = {
-    id: "writingTech",
-    title: "Writing",
+var alphabet = {
+    id: "alphabetTech",
+    title: "Alphabet",
     priceTag: "(700 science): ",
     flag: 0,
+    index: 4,
     description: "Unlock Library",
-    trigger: function(){return triggerA(writing);},
+    trigger: function(){return triggerA(alphabet);},
     element: null,
     cost: 700,
     effect: function(){
-        buyTech(writing);
+        buyTech(alphabet);
     },
     req: [0]
 }
-techs.push(writing)
+techs.push(alphabet)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var sailing = {
@@ -115,6 +120,7 @@ var sailing = {
     title: "Sailing",
     priceTag: "(700 science): ",
     flag: 0,
+    index: 5,
     description: "Unlock Fishing",
     trigger: function(){return triggerA(sailing);},
     element: null,
@@ -132,13 +138,13 @@ var hunting = {
     title: "Hunting",
     priceTag: "(880 science): ",
     flag: 0,
+    index: 6,
     description: "Unlock Hunting Animals",
     trigger: function(){return triggerA(hunting);},
     element: null,
     cost: 880,
     effect: function(){
-        hunting.flag = 2;
-        hunting.element.parentNode.removeChild(hunting.element);
+        buyTech(hunting);
     },
     req: [1]
 }
@@ -150,17 +156,69 @@ var archery = {
     title: "Archery",
     priceTag: "(900 science): ",
     flag: 0,
+    index: 7,
     description: "Unlock Archers",
     trigger: function(){return triggerA(archery);},
     element: null,
     cost: 900,
     effect: function(){
-        archery.flag = 2;
-        archery.element.parentNode.removeChild(archery.element);
+        buyTech(archery);
     },
     req: [1]
 }
 techs.push(archery)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var wheel = {
+    id: "wheelTech",
+    title: "Wheel",
+    priceTag: "(1400 science): ",
+    flag: 0,
+    index: 8,
+    description: "Unlock Charioteers",
+    trigger: function(){return triggerA(wheel);},
+    element: null,
+    cost: 14000,
+    effect: function(){
+        buyTech(wheel);
+    },
+    req: [2]
+}
+techs.push(wheel)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var masonry = {
+    id: "masonryTech",
+    title: "Masonry",
+    priceTag: "(16000 science): ",
+    flag: 0,
+    index: 9,
+    description: "Allows Stone Buildings",
+    trigger: function(){return triggerA(masonry);},
+    element: null,
+    cost: 16000,
+    effect: function(){
+        buyTech(masonry);
+    },
+    req: [2]
+}
+techs.push(masonry)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var metallurgy = {
+    id: "metallurgyTech",
+    title: "Metallurgy",
+    priceTag: "(20000 science): ",
+    flag: 0,
+    index: 10,
+    description: "Allows Metal Tools",
+    trigger: function(){return triggerA(metallurgy);},
+    element: null,
+    cost: 20000,
+    effect: function(){
+        buyTech(metallurgy);
+    },
+    req: [3]
+}
+techs.push(metallurgy)
 export {techs}

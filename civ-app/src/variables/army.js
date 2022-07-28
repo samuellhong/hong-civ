@@ -49,7 +49,7 @@ var fighter = {
     price:[200],
     scienceReq: 0,
     projectReq:null,
-    obsolete:3,
+    obsolete:9,
     priceIndex:[0],
     index: 0,
     range: 0,
@@ -63,6 +63,10 @@ var fighter = {
     },
     train: function(){
         train(fighter);
+    },
+    trainEnemy:function(){
+        const power = fighter.range * (Math.random()+0.6+0.8) + fighter.melee * (Math.random()+0.2+0.9) +fighter.strength +fighter.iq * (Math.random()+0.6+0.8) +fighter.mobility * (Math.random()+0.2+0.4);
+        return power;
     },
 }
 army.push(fighter)
@@ -87,6 +91,10 @@ var slinger = {
     train: function(){
         train(slinger);
     },
+    trainEnemy:function(){
+        const power = slinger.range * (Math.random()+0.6+0.8) + slinger.melee * (Math.random()+0.2+0.9) +slinger.strength +slinger.iq * (Math.random()+0.6+0.8) +slinger.mobility * (Math.random()+0.2+0.4);
+        return power;
+    },
 }
 army.push(slinger)
 
@@ -110,6 +118,10 @@ var warrior = {
     train: function(){
         train(warrior);
     },
+    trainEnemy:function(){
+        const power = warrior.range * (Math.random()+0.6+0.8) + warrior.melee * (Math.random()+0.2+0.9) +warrior.strength +warrior.iq * (Math.random()+0.6+0.8) +warrior.mobility * (Math.random()+0.2+0.4);
+        return power;
+    },
 }
 army.push(warrior)
 
@@ -132,6 +144,10 @@ var archer = {
     },
     train: function(){
         train(archer);
+    },
+    trainEnemy:function(){
+        const power = archer.range * (Math.random()+0.6+0.8) + archer.melee * (Math.random()+0.2+0.9) +archer.strength +archer.iq * (Math.random()+0.6+0.8) +archer.mobility * (Math.random()+0.2+0.4);
+        return power;
     },
 }
 army.push(archer)

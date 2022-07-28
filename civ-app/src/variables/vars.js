@@ -23,6 +23,12 @@ let game = {
     housing:0,
     unusedHousing:0,
 
+    builders:0,
+    manPower: 0,
+    manPowerMultiplier: 1,
+    builderPrice: 300,
+    maxManPower: 500,
+
     cropCount:[0,0,0],
     seedsCount:[10,0,0],
     seedPrice:[(Math.random()*.1+0.01), (Math.random()*.3+.31), (Math.random()*2+2.01)],
@@ -79,6 +85,11 @@ let game = {
 
     enemyMilitaryUnits: [0,0,0],
     enemyMilitaryValues: [[],[],[]],
+    foundFight: false,
+    inFight: false,
+    goldPrize: 0,
+    landPrize: 0,
+    winner:1,
 
     militaryHousing: 5,
     militaryUnusedHousing: 5,

@@ -46,6 +46,8 @@ var seedPriceIntervals = [null,null,null];
 var cropPriceIntervals = [null,null,null];
 var livestockPriceIntervals = [null,null,null];
 var breedIntervals = [null,null];
+var builderInterval;
+var fightInterval;
 //var lumberInterval;
 //var miningInterval = [null];
 const resourceString = ["g", "wood", "stone"];
@@ -144,8 +146,9 @@ const App = () =>{
     manageProjects();
     manageBuildings();
     manageMilitaryUnits();
+    manageWar();
    
-    loadGame.resources = [loadGame.money];
+    loadGame.resources = [loadGame.money,loadGame.wood,loadGame.stone];
 
     localStorage.setItem("scienceFlags",JSON.stringify(scienceFlags));
     document.getElementById("money").innerHTML = loadGame.money.toFixed(2);
@@ -297,9 +300,6 @@ const App = () =>{
 
   useEffect(() => {
     saveVar();
-
-    
-    
     for (let i = 0;i<crops.length;i++){
       addCropInterval(i);
     }
@@ -307,9 +307,14 @@ const App = () =>{
       loadGame.science += loadGame.scienceInt;
       saveVar();
     },loadGame.loadScienceTime);
+    builderInterval = setInterval(() =>{
+      loadGame.manPower += (loadGame.manPowerMultiplier * loadGame.builders);
+      saveVar();
+    }, 5000)
     return()=>{
 
       clearInterval(scienceInterval);
+      clearInterval(builderInterval);
     }
   })
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -747,9 +752,29 @@ const App = () =>{
 
   function manageBuildings(){
     var buildingDiv = document.getElementById("buildingDiv");
+    var builderDiv = document.getElementById("builderDiv");
     while (buildingDiv.firstChild) {
       buildingDiv.removeChild(buildingDiv.firstChild);
     }
+    while (builderDiv.firstChild) {
+      builderDiv.removeChild(builderDiv.firstChild);
+    }
+    builderDiv.appendChild(document.createTextNode("Manpower: "+loadGame.manPower+" (+"+loadGame.builders*loadGame.manPowerMultiplier+")"));
+    builderDiv.appendChild(document.createElement("br"));
+    var builderButton = document.createElement("button");
+    builderButton.setAttribute("class","buySeed");
+    builderButton.appendChild(document.createTextNode("Builder"));
+    builderButton.onclick = function(){
+      buyBuilder();
+      saveVar();
+    }
+    builderDiv.appendChild(builderButton);
+    
+    builderDiv.appendChild(document.createTextNode(" "+loadGame.builders));
+    builderDiv.appendChild(document.createElement("br"));
+    builderDiv.appendChild(document.createTextNode("Price: "+loadGame.builderPrice.toFixed(2)+"g"));
+    builderDiv.appendChild(document.createElement("br"));
+    builderDiv.appendChild(document.createElement("hr"));
     for(let i = 0;i<buildings.length;i++){
       if(buildings[i].trigger()){
         displayBuilding(buildings[i]);
@@ -792,20 +817,70 @@ const App = () =>{
       buildingDiv.appendChild(button2);
       buildingDiv.appendChild(document.createElement("br"));
       buildingDiv.appendChild(document.createTextNode("Upgrade: "));
+      buildingDiv.appendChild(document.createTextNode(t.upgradeManpower+"mp;"));
       for(let i =0; i<t.upgradePrice.length; i++){
-        buildingDiv.appendChild(document.createTextNode(t.upgradePrice[i]));
-        buildingDiv.appendChild(document.createTextNode(resourceString[t.upgradePriceIndex[i]]+" "));
+        buildingDiv.appendChild(document.createTextNode(" "+t.upgradePrice[i]));
+        buildingDiv.appendChild(document.createTextNode(resourceString[t.upgradePriceIndex[i]]+";"));
       }
     }
     
     buildingDiv.appendChild(document.createElement("br"));
     buildingDiv.appendChild(document.createTextNode("Price: "));
+    buildingDiv.appendChild(document.createTextNode(t.manpower+"mp;"));
     for(let i =0; i<t.price.length; i++){
-      buildingDiv.appendChild(document.createTextNode(t.price[i]));
-      buildingDiv.appendChild(document.createTextNode(resourceString[t.priceIndex[i]]+" "));
+      buildingDiv.appendChild(document.createTextNode(" "+t.price[i]));
+      buildingDiv.appendChild(document.createTextNode(resourceString[t.priceIndex[i]]+";"));
     }
     buildingDiv.appendChild(document.createElement("br"));
 
+  }
+
+ 
+  
+  function manageProjects(){
+    var projectsDiv = document.getElementById("pDiv");
+    while (projectsDiv.firstChild) {
+      projectsDiv.removeChild(projectsDiv.firstChild);
+    }
+    
+    for(let i = 0;i<projects.length;i++){
+      
+      if(projects[i].trigger()){
+        
+        displayProject(projects[i]);
+      }
+    }
+  }
+
+  function displayProject(t){
+    var tempDiv = document.getElementById("pDiv");
+    t.element = document.createElement("button");
+    t.element.setAttribute("id", t.id);
+    t.element.setAttribute("class","scienceButton");
+    var span = document.createElement("span");
+    span.style.fontWeight = "bold"
+    var title = document.createTextNode(t.description+" ");
+    span.appendChild(title);
+    var cost = document.createTextNode(t.priceTag+"\n");
+    t.element.append(span);
+    t.element.append(cost);
+    var space = document.createElement("br");
+    t.element.append(space);
+
+    var span2 = document.createElement("span");
+    var title2 = document.createTextNode(t.description2+" ");
+    span2.appendChild(title2);
+    t.element.append(span2);
+    t.element.onclick = (function(){canBuyProject(t)});
+    tempDiv.appendChild(t.element);
+    
+  }
+  function canBuyProject(t){
+    if(t.cost <= loadGame.science){
+      t.effect();
+      loadGame = JSON.parse(localStorage.getItem("game"));
+      saveVar();
+    }
   }
 
   function manageMilitaryUnits(){
@@ -814,7 +889,7 @@ const App = () =>{
       militaryDiv.removeChild(militaryDiv.firstChild);
     }
     for(let i = 0;i<military.length;i++){
-      if(military[i].trigger()){
+      if(military[i].trigger() || loadGame.militaryUnits[i]>0 || loadGame.currentMilitaryUnits[i]>0){
         displayMilitaryUnit(military[i]);
       }
     }
@@ -850,6 +925,7 @@ const App = () =>{
     assign.appendChild(document.createTextNode(">"));
     assign.setAttribute("class","increment");
     assign.onclick = function(){
+      
       assignToArmy(t.index);
       saveVar();
     }
@@ -862,60 +938,75 @@ const App = () =>{
       tempdiv.appendChild(document.createTextNode(resourceString[t.priceIndex[i]]+" "));
     }
     button.onclick = (function(){
-      t.train();
-      loadGame = JSON.parse(localStorage.getItem("game"));
-      saveVar();
-    });
-    tempdiv.appendChild(document.createElement("br"));
-    
-  }
-  
-  function manageProjects(){
-    var projectsDiv = document.getElementById("pDiv");
-    while (projectsDiv.firstChild) {
-      projectsDiv.removeChild(projectsDiv.firstChild);
-    }
-    
-    for(let i = 0;i<projects.length;i++){
-      
-      if(projects[i].trigger()){
-        
-        displayProject(projects[i]);
+      if(t.trigger()){
+        t.train();
+        loadGame = JSON.parse(localStorage.getItem("game"));
+        saveVar();
       }
-    }
+      
+    });
+    tempdiv.appendChild(document.createElement("br")); 
   }
 
-  function displayProject(t){
-    var tempDiv = document.getElementById("pDiv");
-
-    t.element = document.createElement("button");
-    
-    t.element.setAttribute("id", t.id);
-    t.element.setAttribute("class","scienceButton");
-    var span = document.createElement("span");
-    span.style.fontWeight = "bold"
-    var title = document.createTextNode(t.description+" ");
-    span.appendChild(title);
-    var cost = document.createTextNode(t.priceTag+"\n");
-    t.element.append(span);
-    t.element.append(cost);
-    var space = document.createElement("br");
-    t.element.append(space);
-
-    var span2 = document.createElement("span");
-    var title2 = document.createTextNode(t.description2+" ");
-    span2.appendChild(title2);
-    t.element.append(span2);
-    t.element.onclick = (function(){canBuyProject(t)});
-    tempDiv.appendChild(t.element);
-    
-  }
-  function canBuyProject(t){
-    if(t.cost <= loadGame.science){
-      t.effect();
-      loadGame = JSON.parse(localStorage.getItem("game"));
-      saveVar();
+  function manageWar(){
+    var warDiv = document.getElementById("warDiv");
+    while (warDiv.firstChild) {
+      warDiv.removeChild(warDiv.firstChild);
     }
+    var search = document.createElement("button");
+    search.setAttribute("class","searchWarButton");
+    search.appendChild(document.createTextNode("Search for Battle"));
+    search.onclick = function(){
+      if(loadGame.currentMilitaryPower > 0 && loadGame.foundFight === false){
+        findBattle();
+        saveVar();
+        
+
+      }
+    };
+    warDiv.appendChild(search);
+    warDiv.appendChild(document.createElement("br"));
+    warDiv.appendChild(document.createTextNode("Gold Prize: "+loadGame.goldPrize.toFixed(2)));
+    warDiv.appendChild(document.createElement("br"));
+    warDiv.appendChild(document.createTextNode("Land Prize: "+loadGame.landPrize));
+    warDiv.appendChild(document.createElement("br"));
+    warDiv.appendChild(document.createElement("br"));
+    if(loadGame.foundFight === true){      
+      for(let i = 0; i<loadGame.currentMilitaryUnits.length;i++){
+        if(military[i].trigger() || loadGame.militaryUnits[i]>0 || loadGame.currentMilitaryUnits[i]>0){
+          warDiv.appendChild(document.createTextNode(military[i].id+": "+loadGame.enemyMilitaryUnits[i]));
+          warDiv.appendChild(document.createElement("br"));
+        }
+      }
+      var fight = document.createElement("button");
+      fight.setAttribute("class","searchWarButton");
+      fight.appendChild(document.createTextNode("FIGHT!!!"));
+      fight.onclick = function(){
+        if(loadGame.inFight === false){
+          
+          loadGame.inFight = true;
+          startFight();
+          saveVar();
+        }
+      }
+      warDiv.appendChild(fight);
+      warDiv.appendChild(document.createElement("br"));
+      var pass = document.createElement("button");
+      pass.setAttribute("class","searchWarButton");
+      pass.appendChild(document.createTextNode("Flee"));
+      pass.onclick = function(){
+        if(loadGame.inFight === false){
+          loadGame.foundFight = false;
+          loadGame.goldPrize = 0;
+          loadGame.landPrize = 0;
+          saveVar();
+        }
+        
+      }
+      warDiv.appendChild(pass);
+    }
+    
+    
   }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1271,14 +1362,168 @@ const App = () =>{
   }
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  function buyBuilder(){
+    if(loadGame.unusedHousing <=0 || loadGame.money < loadGame.builderPrice){
+      return;
+    }
+    loadGame.builders += 1;
+    loadGame.money -= loadGame.builderPrice;
+    loadGame.unusedHousing -= 1;
+    clearInterval(builderInterval);
+    builderInterval = setInterval(() =>{
+      if (loadGame.manPower + (loadGame.manPowerMultiplier * loadGame.builders) < loadGame.maxManPower){
+        loadGame.manPower += (loadGame.manPowerMultiplier * loadGame.builders);
+      }
+      else{
+        loadGame.manPower = loadGame.maxManPower;
+      }
+      
+      saveVar();
+    }, 5000)
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function assignToArmy(i){
-    if(loadGame.militaryUnits[i] > 0){
+    
+    if(loadGame.militaryUnits[i] > 0 && loadGame.foundFight === false){
       loadGame.militaryUnits[i]-=1;
       loadGame.currentMilitaryUnits[i] +=1;
       var power = loadGame.militaryValues[i].pop();
       (loadGame.currentMilitaryValues[i]).push(power);
       loadGame.currentMilitaryPower += power;
     }
+    
+  }
+
+  function findBattle(){
+    loadGame.foundFight = true;
+    for(let i =0;i<loadGame.enemyMilitaryUnits.length;i++){
+      loadGame.enemyMilitaryUnits[i] = 0;
+      loadGame.enemyMilitaryValues[i] = [];
+    }
+    var number = 0;
+    for(let i =0; i<loadGame.currentMilitaryUnits.length;i++){
+      if(military[i].trigger()){
+        if(loadGame.currentMilitaryUnits[i] === 0){
+          number = Math.floor(Math.random()*4+1);
+        }
+        else{
+          number = Math.floor(Math.random()*(2*loadGame.currentMilitaryUnits[i])+1);
+        }
+        loadGame.enemyMilitaryUnits[i] = number;
+        for(let j = 0; j<number; j++){
+          loadGame.enemyMilitaryValues[i].push(military[i].trainEnemy());
+        }
+      }
+    }
+    var sum1 = 0;
+    var sum2 = 0;
+    for(let i = 0; i<loadGame.currentMilitaryUnits.length;i++){
+      sum1 += loadGame.currentMilitaryUnits[i];
+    }
+    for(let i = 0; i<loadGame.enemyMilitaryUnits.length;i++){
+      sum2 += loadGame.enemyMilitaryUnits[i];
+    }
+    
+    loadGame.goldPrize = sum2/sum1 * Math.abs(sum2-sum1) * 10 *(Math.random()*0.4+0.8);
+    loadGame.landPrize = Math.ceil(sum2/sum1 * Math.abs(sum2-sum1) * 0.5*(Math.random()*0.4+0.8));
+    
+    saveVar();
+  }
+  
+  function startFight(){
+    fightInterval = setInterval(()=>{
+      if(loadGame.inFight){
+        console.log(loadGame.enemyMilitaryUnits);
+        console.log(loadGame.currentMilitaryUnits);
+        fight();
+      }
+      else{
+        if(loadGame.winner === 2){
+          loadGame.money += loadGame.goldPrize;
+          loadGame.land += loadGame.landPrize;
+          loadGame.unusedLand += loadGame.landPrize;
+          
+        }
+        clearInterval(fightInterval);
+        loadGame.foundFight = false;
+        loadGame.goldPrize = 0;
+        loadGame.landPrize = 0;
+        saveVar();
+      }
+    },3000);
+  }
+  function fight(){
+    var sum1 = 0;
+    var sum2 = 0;
+    for(let i = 0;i<loadGame.enemyMilitaryUnits.length;i++){
+      sum1 += loadGame.enemyMilitaryUnits[i];
+    }
+    for(let i = 0;i<loadGame.currentMilitaryUnits.length;i++){
+      sum2 += loadGame.currentMilitaryUnits[i];
+    }
+    if(sum1 ===0 || sum2===0){
+      if(sum1 === 0){
+        loadGame.winner=2;
+      }
+      else{
+        loadGame.winner = 1;
+      }
+      loadGame.inFight = false;
+      loadGame.foundFight = false;
+      return;
+    }
+    var odds1 = [];
+    var odds2 = [];
+    for(let i = 0;i<loadGame.enemyMilitaryUnits.length;i++){
+      odds1.push(loadGame.enemyMilitaryUnits[i]/sum1);
+    }
+    for(let i = 0;i<loadGame.currentMilitaryUnits.length;i++){
+      odds2.push(loadGame.currentMilitaryUnits[i]/sum2);
+    }
+    console.log(odds1);
+    const m1 = Math.random();
+    const m2 = Math.random();
+    var fighter1 = 0;
+    var fighter2 = 0;
+    var s1 = odds1[0];
+    var s2 = odds2[0];
+    for(let i = 0;i<odds1.length;i++){
+      if(m1 < s1){
+        fighter1 = i;
+        break;
+      }
+      s1+=odds1[i+1];
+    }
+    for(let i = 0;i<odds2.length;i++){
+      if(m2 < s2){
+        fighter2 = i;
+        break;
+      }
+      s2+=odds2[i+1];
+    }
+    var enemyStrength = loadGame.enemyMilitaryValues[fighter1].pop();
+    var yourStrength = loadGame.currentMilitaryValues[fighter2].pop();
+    var odd1 = enemyStrength/(enemyStrength+yourStrength);
+    var odd2 = yourStrength/(enemyStrength+yourStrength);
+    var winner = Math.random();
+    var lost = 0;
+    
+    if (winner<odd1){
+      lost = Math.random()*odd1 + 0.01;
+      enemyStrength *= lost;
+      loadGame.currentMilitaryUnits[fighter2] -= 1
+      loadGame.enemyMilitaryValues[fighter1].push(enemyStrength)
+      loadGame.militaryUnusedHousing += 1;
+    }
+    else{
+      lost = Math.random()*odd2 + 0.01;
+      yourStrength *= lost;
+      loadGame.enemyMilitaryUnits[fighter1] -= 1
+      loadGame.currentMilitaryValues[fighter2].push(yourStrength)
+    }
+    saveVar();
+    return;
   }
   return(
     <>
@@ -1370,10 +1615,9 @@ const App = () =>{
         </div>
         <div id = "columnC" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>
           <b>Buildings</b>
-            <hr/>
-          <div id = "buildingDiv">
-
-          </div>
+          <hr/>
+          <div id = "builderDiv"></div>
+          <div id = "buildingDiv"></div>
           <b>Military</b>
           <hr/>
           <div id = "militaryDiv">
@@ -1388,7 +1632,9 @@ const App = () =>{
 
         </div>
         <div id = "columnD" style = {{fontSize: '1rem', fontFamily:'Times New Roman'}}>
-
+          <b>War</b>
+          <hr/>
+          <div id = "warDiv"></div>
         </div>
       </div>
     </>

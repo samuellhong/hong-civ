@@ -46,7 +46,7 @@ var project2 = {
 
     id: "project2",
     scienceReq: 0,
-    projectReq: null,
+    projectReq: 0,
     description: "Wood Sickles & Hoes",
     description2: "Increase Seed Growth Chance",
     priceTag: "(75 science): ",
