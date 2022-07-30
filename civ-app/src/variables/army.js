@@ -46,7 +46,7 @@ function train(t){
 
 var fighter = {
     id:"fighter",
-    price:[200],
+    price:[50],
     scienceReq: 0,
     projectReq:null,
     obsolete:9,
@@ -76,7 +76,7 @@ var slinger = {
     scienceReq:0,
     projectReq:null,
     obsolete:5,
-    price:[300],
+    price:[100],
     priceIndex:[0],
     index: 1,
     range: 1,
@@ -100,7 +100,7 @@ army.push(slinger)
 
 var warrior = {
     id:"warrior",
-    price:[500,10,10],
+    price:[300,10,10],
     scienceReq:3,
     projectReq:null,
     obsolete:null,
@@ -127,7 +127,7 @@ army.push(warrior)
 
 var archer = {
     id:"archer",
-    price:[700,10],
+    price:[300,10],
     obsolete:null,
     priceIndex:[0,1],
     scienceReq:7,

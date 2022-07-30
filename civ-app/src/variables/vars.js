@@ -3,11 +3,11 @@
 
 let game = {
 
-    money: 10000,
+    money: 0,
     population: 0,
     unusedPopulation: 0,
     stage: 0,
-    science: 1000,
+    science: 0,
     loadScienceTime: 10000,
     land: 20,
     unusedLand: 20,
@@ -37,8 +37,8 @@ let game = {
     seedBundle: 3,
     keepCrop: 5,
     storedCrops:[0,0,0],
-    cropStorage:30,
-    cropStorageSpace:30, 
+    cropStorage:20,
+    cropStorageSpace:20, 
 
     farmLand:0,
     unusedFarmLand:0,
@@ -64,10 +64,11 @@ let game = {
     breedSpeed: 10,
     keepLivestock: 5,
     storedMeat:[0,0],
-    meatStorage:30,
-    meatStorageSpace:30,
     livestockTraders: 0,
     livestockTraderStatus:0,
+
+    meatStorage:10,
+    meatStorageSpace:10, 
 
     livestockLand:0,
     unusedLivestockLand:0,
@@ -89,6 +90,7 @@ let game = {
     inFight: false,
     goldPrize: 0,
     landPrize: 0,
+    captives: 0,
     winner:1,
 
     militaryHousing: 5,

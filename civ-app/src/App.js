@@ -105,6 +105,7 @@ const App = () =>{
         if(loadGame.population >0){
           feed();
           storeExtraCrops();
+          storeExtraMeat();
         }
       },40000);
       for(let i = 0;i<crops.length;i++){
@@ -266,6 +267,45 @@ const App = () =>{
             loadGame.cropStorageSpace -= 1;
             loadGame.cropCount[j] -= 1;
             loadGame.unusedFarmLand +=1;
+            break;
+          }
+          sum2+=odds[j]
+        }
+      }
+      else{
+        saveVar();
+        return;
+      }
+    }
+    saveVar();
+  }
+  function storeExtraMeat(){
+    while(loadGame.meatStorageSpace > 0){
+      var odds = []
+      var totMeat=0;
+      for(let j =0;j<livestock.length;j++){
+        if(loadGame.livestockCount[j]>loadGame.keepCrop){
+          totMeat += loadGame.livestockCount[j]-loadGame.keepLivestock;
+        }
+      }          
+      if(totMeat>0){
+        for(let j =0;j<livestock.length;j++){
+          if(loadGame.livestockCount[j]>loadGame.keepLivestock){
+            odds.push((loadGame.livestockCount[j]-loadGame.keepLivestock)/totMeat);
+          }
+          else{
+            odds.push(0);
+          }
+        }
+        const chance2 = Math.random();
+        var sum2 = 0;
+        for(let j = 0;j<livestock.length;j++){
+          if(chance2 < odds[j]+sum2){
+            loadGame.storedMeat[j] += 1;
+            loadGame.storedFood +=1;
+            loadGame.meatStorageSpace -= 1;
+            loadGame.livestockCount[j] -= 1;
+            loadGame.unusedLivestockLand +=1;
             break;
           }
           sum2+=odds[j]
@@ -970,14 +1010,23 @@ const App = () =>{
     warDiv.appendChild(document.createElement("br"));
     warDiv.appendChild(document.createTextNode("Land Prize: "+loadGame.landPrize));
     warDiv.appendChild(document.createElement("br"));
+    warDiv.appendChild(document.createTextNode("Estimated Captives: "+loadGame.captives));
     warDiv.appendChild(document.createElement("br"));
-    if(loadGame.foundFight === true){      
+    warDiv.appendChild(document.createElement("br"));
+    if(loadGame.foundFight === true){     
       for(let i = 0; i<loadGame.currentMilitaryUnits.length;i++){
         if(military[i].trigger() || loadGame.militaryUnits[i]>0 || loadGame.currentMilitaryUnits[i]>0){
-          warDiv.appendChild(document.createTextNode(military[i].id+": "+loadGame.enemyMilitaryUnits[i]));
+          var span1 = document.createElement(("span"));
+          span1.textContent = military[i].id+": "+loadGame.currentMilitaryUnits[i];
+          span1.setAttribute("style","margin-left: 10%;color: blue");
+          warDiv.appendChild(span1);
+          var span = document.createElement(("span"));
+          span.textContent = loadGame.enemyMilitaryUnits[i] + ": " +military[i].id;
+          span.setAttribute("style","margin-left: 37%;color: red");
+          warDiv.appendChild(span);
           warDiv.appendChild(document.createElement("br"));
         }
-      }
+      } 
       var fight = document.createElement("button");
       fight.setAttribute("class","searchWarButton");
       fight.appendChild(document.createTextNode("FIGHT!!!"));
@@ -999,6 +1048,7 @@ const App = () =>{
           loadGame.foundFight = false;
           loadGame.goldPrize = 0;
           loadGame.landPrize = 0;
+          loadGame.captives = 0;
           saveVar();
         }
         
@@ -1092,8 +1142,15 @@ const App = () =>{
     }
   }
   function getWildAnimal(i){
-    loadGame.livestockCount[i] += 1;
-    loadGame.unusedLivestockLand -= 1;
+    if(loadGame.livestockCount[i] + 1>loadGame.keepLivestock){
+      loadGame.storedMeat[i] +=1;
+      loadGame.meatStorageSpace -= 1;
+    }
+    else{
+      loadGame.livestockCount[i] += 1;
+      loadGame.unusedLivestockLand -= 1;
+    }
+    
     saveVar();
   }
   function createWildAnimal(){
@@ -1225,6 +1282,14 @@ const App = () =>{
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function buyFarmer(){
+    if(loadGame.unusedPopulation > 0 && loadGame.unusedHousing > 0){
+      loadGame.totalFarmers +=1;
+      loadGame.unusedPopulation -=1;
+      loadGame.unusedFarmers += 1;
+      loadGame.unusedHousing -= 1;
+      saveVar();
+      return;
+    }
     if(loadGame.farmerPrice <= loadGame.money && loadGame.unusedHousing > 0){
       loadGame.unusedHousing -= 1;
       loadGame.money -= loadGame.farmerPrice;
@@ -1232,7 +1297,7 @@ const App = () =>{
       loadGame.totalFarmers +=1;
       loadGame.unusedFarmers +=1;
       loadGame.population += 1;
-      saveVar()
+      saveVar();
     }
   }
   function addFarmer(i,b){
@@ -1250,6 +1315,17 @@ const App = () =>{
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   function buyCropTrader(){
+    if(loadGame.unusedPopulation > 0 && loadGame.unusedHousing > 0){
+      loadGame.cropTraders +=1;
+      loadGame.unusedPopulation -=1;
+      loadGame.unusedHousing -= 1;
+      if(cropTraderInterval){
+        clearInterval(cropTraderInterval);
+      }
+      addCropTInterval();
+      saveVar();
+      return;
+    }
     if(loadGame.traderPrice <= loadGame.money && loadGame.unusedHousing>0){
       loadGame.money -= loadGame.traderPrice;
       loadGame.unusedHousing -= 1;
@@ -1266,6 +1342,13 @@ const App = () =>{
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function buyHerder(){
+    if(loadGame.unusedPopulation > 0 && loadGame.unusedHousing > 0){
+      loadGame.totalHerders +=1;
+      loadGame.unusedPopulation -=1;
+      loadGame.unusedHousing -= 1;
+      saveVar();
+      return;
+    }
     if(loadGame.herderPrice <= loadGame.money && loadGame.unusedHousing > 0){
       loadGame.unusedHousing -= 1;
       loadGame.money -= loadGame.herderPrice;
@@ -1301,8 +1384,14 @@ const App = () =>{
             for(let j = 0; j<tries;j++){
               chance = Math.random()
               if (chance < loadGame.livestockBreedChance[i] && loadGame.unusedLivestockLand > 0){
-                loadGame.livestockCount[i] += 1;
-                loadGame.unusedLivestockLand -= 1;
+                if(loadGame.meatStorageSpace > 0 && loadGame.livestockCount[i]+1 > loadGame.keepLivestock){
+                  loadGame.storedMeat[i] += 1;
+                  loadGame.meatStorageSpace -= 1;
+                }
+                else{
+                  loadGame.livestockCount[i] += 1;
+                  loadGame.unusedLivestockLand -= 1;
+                }
               }
             }
           }
@@ -1312,6 +1401,17 @@ const App = () =>{
     }
   }
   function buyLivestockTrader(){
+    if(loadGame.unusedPopulation > 0 && loadGame.unusedHousing > 0){
+      loadGame.livestockTraders +=1;
+      loadGame.unusedPopulation -=1;
+      loadGame.unusedHousing -= 1;
+      if(livestockTraderInterval){
+        clearInterval(livestockTraderInterval);
+      }
+      addLivestockTInterval();
+      saveVar();
+      return;
+    }
     if(loadGame.traderPrice <= loadGame.money && loadGame.unusedHousing>0){
       loadGame.money -= loadGame.traderPrice;
       loadGame.unusedHousing -= 1;
@@ -1369,6 +1469,7 @@ const App = () =>{
     loadGame.builders += 1;
     loadGame.money -= loadGame.builderPrice;
     loadGame.unusedHousing -= 1;
+    loadGame.builderPrice *= (Math.random()*0.1 + 1.0)
     clearInterval(builderInterval);
     builderInterval = setInterval(() =>{
       if (loadGame.manPower + (loadGame.manPowerMultiplier * loadGame.builders) < loadGame.maxManPower){
@@ -1425,30 +1526,33 @@ const App = () =>{
       sum2 += loadGame.enemyMilitaryUnits[i];
     }
     
-    loadGame.goldPrize = sum2/sum1 * Math.abs(sum2-sum1) * 10 *(Math.random()*0.4+0.8);
-    loadGame.landPrize = Math.ceil(sum2/sum1 * Math.abs(sum2-sum1) * 0.5*(Math.random()*0.4+0.8));
+    loadGame.goldPrize = sum2/sum1 * Math.abs(sum2-sum1) * 10 *(Math.random()*0.4+0.8)+(Math.random()*50+50);
+    loadGame.landPrize = Math.ceil(sum2/sum1 * Math.abs(sum2-sum1) * 0.5*(Math.random()*0.4+0.8)+(Math.floor(Math.random()*5)));
+    loadGame.captives = Math.floor(sum2 * Math.random()*0.5+0.01);
     
     saveVar();
   }
   
   function startFight(){
     fightInterval = setInterval(()=>{
+      fight();
       if(loadGame.inFight){
-        console.log(loadGame.enemyMilitaryUnits);
-        console.log(loadGame.currentMilitaryUnits);
-        fight();
+        
       }
       else{
         if(loadGame.winner === 2){
           loadGame.money += loadGame.goldPrize;
           loadGame.land += loadGame.landPrize;
           loadGame.unusedLand += loadGame.landPrize;
+          loadGame.population += loadGame.captives;
+          loadGame.unusedPopulation += loadGame.captives;
           
         }
         clearInterval(fightInterval);
         loadGame.foundFight = false;
         loadGame.goldPrize = 0;
         loadGame.landPrize = 0;
+        loadGame.captives = 0;
         saveVar();
       }
     },3000);
@@ -1481,7 +1585,6 @@ const App = () =>{
     for(let i = 0;i<loadGame.currentMilitaryUnits.length;i++){
       odds2.push(loadGame.currentMilitaryUnits[i]/sum2);
     }
-    console.log(odds1);
     const m1 = Math.random();
     const m2 = Math.random();
     var fighter1 = 0;
@@ -1504,6 +1607,8 @@ const App = () =>{
     }
     var enemyStrength = loadGame.enemyMilitaryValues[fighter1].pop();
     var yourStrength = loadGame.currentMilitaryValues[fighter2].pop();
+    loadGame.currentMilitaryPower -= yourStrength;
+    loadGame.totalMilitaryPower -= yourStrength;
     var odd1 = enemyStrength/(enemyStrength+yourStrength);
     var odd2 = yourStrength/(enemyStrength+yourStrength);
     var winner = Math.random();
@@ -1518,9 +1623,13 @@ const App = () =>{
     }
     else{
       lost = Math.random()*odd2 + 0.01;
+      console.log("asdasdasd", yourStrength);
       yourStrength *= lost;
       loadGame.enemyMilitaryUnits[fighter1] -= 1
       loadGame.currentMilitaryValues[fighter2].push(yourStrength)
+      loadGame.currentMilitaryPower += yourStrength;
+      loadGame.totalMilitaryPower += yourStrength;
+      console.log(lost, yourStrength);
     }
     saveVar();
     return;

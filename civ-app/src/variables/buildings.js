@@ -64,7 +64,7 @@ var granary = {
     landSpace: 2,
     index: 1,
     prev:null,
-    manpower: 100,
+    manpower: 50,
     trigger: function(){
         return triggerA(granary);
     },
@@ -74,7 +74,7 @@ var granary = {
             return;
         }
         if(loadGame.unusedLand > 1 && loadGame.manPower > granary.manpower){
-            loadGame.cropStorageSpace+=100;
+            loadGame.cropStorageSpace+=50;
             loadGame.unusedLand -= 2;
             loadGame.buildingCount[1] += 1;
             loadGame.money -= granary.price[0];
@@ -100,8 +100,8 @@ var mudhouse = {
     prev:0,
     upgradePrice: [80],
     upgradePriceIndex: [0],
-    upgradeManpower: 150,
-    manpower: 200,
+    upgradeManpower: 50,
+    manpower: 100,
     trigger: function(){
         return triggerA(granary);
     },
@@ -131,7 +131,7 @@ var mudhouse = {
             loadGame.buildingCount[2] += 1;
             loadGame.buildingCount[0] -= 1;
             loadGame.money -= mudhouse.upgradePrice[0];
-            loadGame.manPower -= mudhouse.manpower;
+            loadGame.manPower -= mudhouse.upgradeManpower;
         }
         localStorage.setItem("game",JSON.stringify(loadGame));
     }

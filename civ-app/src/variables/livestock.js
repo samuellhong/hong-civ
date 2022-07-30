@@ -28,7 +28,7 @@ var sheep = {
     scienceReq: 1,
     projectReq: null,
     index: 0,
-    feed: 5,
+    feed: 10,
     trigger: function(){
         return triggerA(sheep);
     },
@@ -44,7 +44,7 @@ var cattle = {
     scienceReq: 1,
     projectReq: null,
     index: 1,
-    feed: 10,
+    feed: 15,
     trigger: function(){
         return triggerA(cattle);
     },
