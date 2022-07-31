@@ -22,7 +22,7 @@ var scienceFlags = [];
 var militaryFlags = [];
 var projectsFlags = [];
 //localStorage.clear();
-if(true){
+if(false){
   localStorage.setItem("game",JSON.stringify(game));
 
   for(let i = 0; i<tech.length;i++){
@@ -356,7 +356,12 @@ const App = () =>{
       saveVar();
     },loadGame.loadScienceTime);
     builderInterval = setInterval(() =>{
-      loadGame.manPower += (loadGame.manPowerMultiplier * loadGame.builders);
+      if(loadGame.manPower +  (loadGame.manPowerMultiplier * loadGame.builders) > loadGame.maxManPower){
+        loadGame.manPower += (loadGame.manPowerMultiplier * loadGame.builders);
+      }
+      else{
+        loadGame.manPower = loadGame.maxManPower;
+      }
       saveVar();
     }, 5000)
     return()=>{
@@ -1591,7 +1596,7 @@ const App = () =>{
       sum2 += loadGame.enemyMilitaryUnits[i];
     }
     
-    loadGame.goldPrize = sum2/sum1 * Math.abs(sum2-sum1+1) * 10 *(Math.random()*0.4+0.8)*sum1 + 200;
+    loadGame.goldPrize = sum2/sum1 * (Math.abs(sum2-sum1)+1) * 10 *(Math.random()*0.4+0.8)*sum1 + 200;
     loadGame.landPrize = Math.ceil(sum2/sum1 * Math.abs(sum2-sum1) * 0.5*(Math.random()*0.4+0.8)+(Math.floor(Math.random()*5)));
     loadGame.captives = Math.floor(sum2 * Math.random()*0.5+0.01);
     

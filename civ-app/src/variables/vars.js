@@ -1,13 +1,13 @@
 const varUnits = 4;
-
+const varBuildings = 5;
 
 let game = {
 
-    money: 100000,
+    money: 0,
     population: 0,
     unusedPopulation: 0,
     stage: 0,
-    science: 100000,
+    science: 0,
     maxScience: 1000,
     loadScienceTime: 10000,
     land: 20,
@@ -74,7 +74,7 @@ let game = {
     livestockLand:0,
     unusedLivestockLand:0,
 
-    buildingCount: [0,0,0,0,0],
+    buildingCount: Array(varBuildings).fill(0),
     totalMilitaryPower: 0,
     currentMilitaryPower: 0,
     currentMilitaryUnits: Array(varUnits).fill(0),
