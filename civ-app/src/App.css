@@ -109,7 +109,6 @@
   font-weight: 400;
   height: 60px;
   width: 100%;
-  overflow-y: scroll;
 }
 #miningDiv{
   padding: 5px;
@@ -150,8 +149,6 @@
   height: 370px;
   width: 100%;
   overflow-y: scroll;
-  
-  
 }
 #builderDiv{
   font-weight: 400;
@@ -164,6 +161,7 @@
   height: 370px;
   width: 100%;
   overflow-y: scroll;
+  overflow-x: scroll;
 }
 #militaryDiv{
   font-weight: 400;
@@ -172,9 +170,11 @@
 }
 #militaryUnitsDiv{
   font-weight: 400;
-  height: 370px;
+  height: 300px;
   width: 100%;
+  overflow: hidden;
   overflow-y: scroll;
+  overflow-x: scroll;
 }
 #warDiv{
   font-weight: 400;

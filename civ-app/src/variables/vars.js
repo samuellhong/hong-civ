@@ -1,13 +1,14 @@
-
+const varUnits = 4;
 
 
 let game = {
 
-    money: 0,
+    money: 100000,
     population: 0,
     unusedPopulation: 0,
     stage: 0,
-    science: 0,
+    science: 100000,
+    maxScience: 1000,
     loadScienceTime: 10000,
     land: 20,
     unusedLand: 20,
@@ -73,19 +74,17 @@ let game = {
     livestockLand:0,
     unusedLivestockLand:0,
 
-    buildingCount: [0,0,0],
-
+    buildingCount: [0,0,0,0,0],
     totalMilitaryPower: 0,
     currentMilitaryPower: 0,
-    currentMilitaryUnits: [0,0,0],
-    currentMilitaryValues: [[],[],[]],
-    resources: [0,0,0,0,0],
+    currentMilitaryUnits: Array(varUnits).fill(0),
+    currentMilitaryValues: Array(varUnits).fill([]),
 
-    militaryUnits: [0,0,0],
-    militaryValues: [[],[],[]],
+    militaryUnits: Array(varUnits).fill(0),
+    militaryValues: Array(varUnits).fill([]),
 
-    enemyMilitaryUnits: [0,0,0],
-    enemyMilitaryValues: [[],[],[]],
+    enemyMilitaryUnits: Array(varUnits).fill(0),
+    enemyMilitaryValues: Array(varUnits).fill([]),
     foundFight: false,
     inFight: false,
     goldPrize: 0,
@@ -100,9 +99,11 @@ let game = {
     stone:0,
     miningLand:0,
     unusedMiningLand:0,
-    materialPrice: [(Math.random()*5+10),(Math.random()*7+20)],
+    materialPrice: [(Math.random()*4+2),(Math.random()*3+6)],
     materialCount: [0,0],
-
+    materialWorkers: [0,0],
+    materialStorage: [50,50],
+    matSpeed:7000,
     
 };
 

@@ -11,6 +11,24 @@ function triggerA(t){
     }
     return true;
 }
+
+function buy(t){
+    var loadGame = JSON.parse(localStorage.getItem("game"));
+    if(loadGame.unusedPopulation >0 && loadGame.unusedHousing >0 && loadGame.unusedMiningLand > 0){
+        loadGame.materialWorkers[t.index]+=1;
+        loadGame.unusedHousing -= 1;
+        loadGame.unusedMiningLand-=1;
+        loadGame.unusedPopulation -= 1;
+    }
+    else if(loadGame.money >= t.occPrice && loadGame.unusedHousing > 0 && loadGame.unusedMiningLand > 0){
+        loadGame.materialWorkers[t.index]+=1;
+        loadGame.money -= t.occPrice;
+        loadGame.unusedHousing -= 1;
+        loadGame.unusedMiningLand-=1;
+        loadGame.population += 1;
+    }
+    localStorage.setItem("game",JSON.stringify(loadGame));
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var wood = {
@@ -21,6 +39,11 @@ var wood = {
     index: 0,
     trigger: function(){
         return triggerA(wood);
+    },
+    occ: "Jack",
+    occPrice: 500,
+    buy: function(){
+        buy(wood);
     }
 }
 materials_.push(wood);
@@ -34,6 +57,11 @@ var stone = {
     index: 1,
     trigger: function(){
         return triggerA(stone);
+    },
+    occ: "Miner",
+    occPrice: 500,
+    buy: function(){
+        buy(stone);
     }
 }
 materials_.push(stone);

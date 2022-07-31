@@ -82,13 +82,13 @@ techs.push(pottery)
 var mining = {
     id: "miningTech",
     title: "Mining",
-    priceTag: "(250 science): ",
+    priceTag: "(400 science): ",
     flag: 0,
     index: 3,
     description: "Unlock Mining; Unlock Warrior; Unlock Stone Tools",
     trigger: function(){return triggerA(mining);},
     element: null,
-    cost: 250,
+    cost: 400,
     effect: function(){
         buyTech(mining);
     },
@@ -178,7 +178,7 @@ var wheel = {
     description: "Unlock Charioteers",
     trigger: function(){return triggerA(wheel);},
     element: null,
-    cost: 14000,
+    cost: 1400,
     effect: function(){
         buyTech(wheel);
     },
@@ -190,13 +190,13 @@ techs.push(wheel)
 var masonry = {
     id: "masonryTech",
     title: "Masonry",
-    priceTag: "(16000 science): ",
+    priceTag: "(1600 science): ",
     flag: 0,
     index: 9,
     description: "Allows Stone Buildings",
     trigger: function(){return triggerA(masonry);},
     element: null,
-    cost: 16000,
+    cost: 1600,
     effect: function(){
         buyTech(masonry);
     },
@@ -208,13 +208,13 @@ techs.push(masonry)
 var metallurgy = {
     id: "metallurgyTech",
     title: "Metallurgy",
-    priceTag: "(20000 science): ",
+    priceTag: "(2000 science): ",
     flag: 0,
     index: 10,
     description: "Allows Metal Tools",
     trigger: function(){return triggerA(metallurgy);},
     element: null,
-    cost: 20000,
+    cost: 2000,
     effect: function(){
         buyTech(metallurgy);
     },

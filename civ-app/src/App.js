@@ -46,11 +46,10 @@ var seedPriceIntervals = [null,null,null];
 var cropPriceIntervals = [null,null,null];
 var livestockPriceIntervals = [null,null,null];
 var breedIntervals = [null,null];
+var matIntervals = [null,null];
 var builderInterval;
 var fightInterval;
-//var lumberInterval;
-//var miningInterval = [null];
-const resourceString = ["g", "wood", "stone"];
+const resourceString = ["wood", "stone"];
   
 if (localStorage.getItem("game") === null){
   localStorage.setItem("game",JSON.stringify(game));
@@ -100,7 +99,8 @@ const App = () =>{
     }
     if (gameStart ===0){
       /* eslint-disable no-unused-vars */
-      
+      loadGame.inFight = false;
+      loadGame.foundFight = false;
       setInterval(()=>{
         if(loadGame.population >0){
           feed();
@@ -123,6 +123,11 @@ const App = () =>{
           livestockPriceIntervals[i] = setInterval(()=>{
             createLivestockPriceInterval(i);
           },(Math.random()*3+10)*1000)
+        }
+      }
+      for(let i = 0;i<materials.length;i++){
+        if(scienceFlags[materials[i].scienceReq] ===2){
+          startResourceInterval(i);
         }
       }
       gameStart = 1;
@@ -149,8 +154,6 @@ const App = () =>{
     manageMilitaryUnits();
     manageWar();
    
-    loadGame.resources = [loadGame.money,loadGame.wood,loadGame.stone];
-
     localStorage.setItem("scienceFlags",JSON.stringify(scienceFlags));
     document.getElementById("money").innerHTML = loadGame.money.toFixed(2);
     document.getElementById("population").innerHTML = loadGame.population;
@@ -344,7 +347,12 @@ const App = () =>{
       addCropInterval(i);
     }
     scienceInterval = setInterval(() => {
-      loadGame.science += loadGame.scienceInt;
+      if(loadGame.science + loadGame.scienceInt <= loadGame.maxScience){
+        loadGame.science += loadGame.scienceInt;
+      }
+      else{
+        loadGame.science = loadGame.maxScience;
+      }
       saveVar();
     },loadGame.loadScienceTime);
     builderInterval = setInterval(() =>{
@@ -671,10 +679,34 @@ const App = () =>{
     var matButton = document.createElement("button");
     matButton.setAttribute("class","buySeed");
     matButton.appendChild(document.createTextNode("Sell"+t.id));
+    matButton.onclick = function(){
+      if(loadGame.materialCount[t.index] >0){
+        loadGame.materialCount[t.index] -=1;
+        loadGame.money += loadGame.materialPrice[t.index];
+      }
+      saveVar();
+    }
     materialsDiv.appendChild(matButton);
-    materialsDiv.appendChild(document.createTextNode(" "+loadGame.materialCount[t.index]));
+    materialsDiv.appendChild(document.createTextNode(" "+loadGame.materialCount[t.index]+" "));
+    var buyWorker = document.createElement("button");
+    buyWorker.setAttribute("class","buySeed");
+    buyWorker.appendChild(document.createTextNode(t.occ));
+    buyWorker.onclick = function(){
+      t.buy();
+      loadGame = JSON.parse(localStorage.getItem("game"));
+      startResourceInterval(t.index);
+      saveVar();
+    }
+    materialsDiv.appendChild(document.createTextNode('\u00A0\u00A0\u00A0'))
+    materialsDiv.appendChild(buyWorker);
+    materialsDiv.appendChild(document.createTextNode(" "+loadGame.materialWorkers[t.index]));
     materialsDiv.appendChild(document.createElement("br"));
     materialsDiv.appendChild(document.createTextNode("Price: "+loadGame.materialPrice[t.index].toFixed(2)+"g"));
+    for(let i = 0;i< loadGame.materialCount[t.index].toString().length + 2;i++){
+      materialsDiv.appendChild(document.createTextNode('\u00A0\u00A0'))
+    }
+    
+    materialsDiv.appendChild(document.createTextNode(" Price: "+t.occPrice+"g"));
     materialsDiv.appendChild(document.createElement("br"));
   }
 
@@ -690,8 +722,8 @@ const App = () =>{
     var tracker = 1;
     for(let i = 0;i<crops.length;i++){
       if(crops[i].scienceReq === null || scienceFlags[crops[i].scienceReq]===2){
-        foodDiv.appendChild(document.createTextNode(crops[i].id+": "+loadGame.storedCrops[i]));
-        for (let j =crops[i].id.length+loadGame.storedCrops[i].toString().length+2;j<17;j++){
+        foodDiv.appendChild(document.createTextNode(crops[i].id+"("+crops[i].feed+"): "+loadGame.storedCrops[i]));
+        for (let j =crops[i].id.length+loadGame.storedCrops[i].toString().length+2;j<13;j++){
           foodDiv.appendChild(document.createTextNode('\u00A0'))
         }
         if (tracker %3===0){
@@ -702,8 +734,10 @@ const App = () =>{
     }
     for(let i = 0;i<livestock.length;i++){
       if(livestock[i].scienceReq ===null || scienceFlags[livestock[i].scienceReq]===2){
-        foodDiv.appendChild(document.createTextNode(livestock[i].meat+": "+loadGame.storedMeat[i]));
-        foodDiv.appendChild(document.createTextNode('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0'));
+        foodDiv.appendChild(document.createTextNode(livestock[i].meat+"("+livestock[i].feed+"): "+loadGame.storedMeat[i]));
+        for (let j =livestock[i].id.length+loadGame.storedMeat[i].toString().length+2;j<11;j++){
+          foodDiv.appendChild(document.createTextNode('\u00A0'))
+        }
         if (tracker %3===0){
           foodDiv.appendChild(document.createElement("br"));
         }
@@ -857,7 +891,8 @@ const App = () =>{
       buildingDiv.appendChild(button2);
       buildingDiv.appendChild(document.createElement("br"));
       buildingDiv.appendChild(document.createTextNode("Upgrade: "));
-      buildingDiv.appendChild(document.createTextNode(t.upgradeManpower+"mp;"));
+      buildingDiv.appendChild(document.createTextNode(t.upgradeManpower+"mp; "));
+      buildingDiv.appendChild(document.createTextNode(t.upgradeGold+"g; "));
       for(let i =0; i<t.upgradePrice.length; i++){
         buildingDiv.appendChild(document.createTextNode(" "+t.upgradePrice[i]));
         buildingDiv.appendChild(document.createTextNode(resourceString[t.upgradePriceIndex[i]]+";"));
@@ -866,7 +901,8 @@ const App = () =>{
     
     buildingDiv.appendChild(document.createElement("br"));
     buildingDiv.appendChild(document.createTextNode("Price: "));
-    buildingDiv.appendChild(document.createTextNode(t.manpower+"mp;"));
+    buildingDiv.appendChild(document.createTextNode(t.manpower+"mp; "));
+    buildingDiv.appendChild(document.createTextNode(t.goldPrice+"g; "));
     for(let i =0; i<t.price.length; i++){
       buildingDiv.appendChild(document.createTextNode(" "+t.price[i]));
       buildingDiv.appendChild(document.createTextNode(resourceString[t.priceIndex[i]]+";"));
@@ -973,9 +1009,10 @@ const App = () =>{
     tempdiv.appendChild(document.createTextNode(" "+loadGame.currentMilitaryUnits[t.index]+" "));
     tempdiv.appendChild(document.createElement("br"));
     tempdiv.appendChild(document.createTextNode("Price: "));
+    tempdiv.appendChild(document.createTextNode(t.goldPrice+"g; "));
     for(let i =0; i<t.price.length; i++){
       tempdiv.appendChild(document.createTextNode(t.price[i]));
-      tempdiv.appendChild(document.createTextNode(resourceString[t.priceIndex[i]]+" "));
+      tempdiv.appendChild(document.createTextNode(resourceString[t.priceIndex[i]]+"; "));
     }
     button.onclick = (function(){
       if(t.trigger()){
@@ -1145,6 +1182,7 @@ const App = () =>{
     if(loadGame.livestockCount[i] + 1>loadGame.keepLivestock){
       loadGame.storedMeat[i] +=1;
       loadGame.meatStorageSpace -= 1;
+      loadGame.storedFood += 1;
     }
     else{
       loadGame.livestockCount[i] += 1;
@@ -1344,6 +1382,7 @@ const App = () =>{
   function buyHerder(){
     if(loadGame.unusedPopulation > 0 && loadGame.unusedHousing > 0){
       loadGame.totalHerders +=1;
+      loadGame.unusedHerders +=1;
       loadGame.unusedPopulation -=1;
       loadGame.unusedHousing -= 1;
       saveVar();
@@ -1386,6 +1425,7 @@ const App = () =>{
               if (chance < loadGame.livestockBreedChance[i] && loadGame.unusedLivestockLand > 0){
                 if(loadGame.meatStorageSpace > 0 && loadGame.livestockCount[i]+1 > loadGame.keepLivestock){
                   loadGame.storedMeat[i] += 1;
+                  loadGame.storedFood += 1;
                   loadGame.meatStorageSpace -= 1;
                 }
                 else{
@@ -1463,13 +1503,21 @@ const App = () =>{
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   function buyBuilder(){
-    if(loadGame.unusedHousing <=0 || loadGame.money < loadGame.builderPrice){
+    if(loadGame.unusedHousing <=0 || ((loadGame.money < loadGame.builderPrice) && loadGame.unusedPopulation <= 0)){
       return;
     }
-    loadGame.builders += 1;
-    loadGame.money -= loadGame.builderPrice;
-    loadGame.unusedHousing -= 1;
-    loadGame.builderPrice *= (Math.random()*0.1 + 1.0)
+    if(loadGame.unusedPopulation>0){
+      loadGame.builders += 1;
+      loadGame.unusedHousing -= 1;
+      loadGame.unusedPopulation -= 1;
+    }
+    else{
+      loadGame.builders += 1;
+      loadGame.money -= loadGame.builderPrice;
+      loadGame.unusedHousing -= 1;
+      loadGame.builderPrice *= (Math.random()*0.1 + 1.0)
+      loadGame.population += 1;
+    }
     clearInterval(builderInterval);
     builderInterval = setInterval(() =>{
       if (loadGame.manPower + (loadGame.manPowerMultiplier * loadGame.builders) < loadGame.maxManPower){
@@ -1481,6 +1529,23 @@ const App = () =>{
       
       saveVar();
     }, 5000)
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  function startResourceInterval(t){
+    if(matIntervals[t]){
+      clearInterval(matIntervals[t]);
+    }
+    matIntervals[t] = setInterval(() =>{
+      if(loadGame.materialCount[t]+loadGame.materialWorkers[t] < loadGame.materialStorage[t]){
+        loadGame.materialCount[t] += loadGame.materialWorkers[t];
+      }
+      else{
+        loadGame.materialCount[t] = loadGame.materialStorage[t];
+      }
+      saveVar();
+    },loadGame.matSpeed);
   }
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1526,7 +1591,7 @@ const App = () =>{
       sum2 += loadGame.enemyMilitaryUnits[i];
     }
     
-    loadGame.goldPrize = sum2/sum1 * Math.abs(sum2-sum1) * 10 *(Math.random()*0.4+0.8)+(Math.random()*50+50);
+    loadGame.goldPrize = sum2/sum1 * Math.abs(sum2-sum1+1) * 10 *(Math.random()*0.4+0.8)*sum1 + 200;
     loadGame.landPrize = Math.ceil(sum2/sum1 * Math.abs(sum2-sum1) * 0.5*(Math.random()*0.4+0.8)+(Math.floor(Math.random()*5)));
     loadGame.captives = Math.floor(sum2 * Math.random()*0.5+0.01);
     
@@ -1692,7 +1757,7 @@ const App = () =>{
           </div>
 
           <br/>
-          <b>Mining</b> <span> </span>
+          <b>Resources</b> <span> </span>
           <button className = "increment" onClick = {()=>incrementMiningLand(-1)}>-</button> <span> </span>
           <span id = "miningLand">{loadGame.unusedMiningLand}/{loadGame.miningLand}</span> <span> </span>
           <button className = "increment" onClick = {()=>incrementMiningLand(1)}>+</button> <span> </span>

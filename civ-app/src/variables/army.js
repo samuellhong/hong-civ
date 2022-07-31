@@ -22,19 +22,20 @@ function train(t){
         
         return;
     }
+    if(t.goldPrice > loadGame.money){
+        return
+    }
     for(let i = 0;i<t.price.length;i++){
-        if(t.price[i] > loadGame.resources[t.priceIndex[i]]){
+        if(t.price[i] > loadGame.materialCount[t.priceIndex[i]]){
             
             return
         }
     }
     for(let i = 0;i<t.price.length;i++){
-        loadGame.resources[t.priceIndex[i]]-=t.price[i];
+        loadGame.materialCount[t.priceIndex[i]]-=t.price[i];
     }
-    loadGame.money = loadGame.resources[0];
-    loadGame.wood = loadGame.resources[1];
-    loadGame.stone = loadGame.resources[2];
 
+    loadGame.money -= t.goldPrice;
     var power = t.range * (Math.random()+0.6+0.8) + t.melee * (Math.random()+0.2+0.9) +t.strength +t.iq * (Math.random()+0.6+0.8) +t.mobility * (Math.random()+0.2+0.4);
     loadGame.totalMilitaryPower += power;
     loadGame.militaryUnits[t.index] +=1;
@@ -43,14 +44,16 @@ function train(t){
 
     localStorage.setItem("game",JSON.stringify(loadGame));
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var fighter = {
     id:"fighter",
-    price:[50],
+    goldPrice: 50,
+    price:[],
     scienceReq: 0,
     projectReq:null,
-    obsolete:9,
-    priceIndex:[0],
+    obsolete:9, /////MASONRY
+    priceIndex:[],
     index: 0,
     range: 0,
     melee:1,
@@ -70,14 +73,16 @@ var fighter = {
     },
 }
 army.push(fighter)
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var slinger = {
     id:"slinger",
     scienceReq:0,
     projectReq:null,
-    obsolete:5,
-    price:[100],
-    priceIndex:[0],
+    obsolete:7, //////ARCHERY
+    goldPrice:75,
+    price:[],
+    priceIndex:[],
     index: 1,
     range: 1,
     melee: 0,
@@ -97,14 +102,16 @@ var slinger = {
     },
 }
 army.push(slinger)
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var warrior = {
     id:"warrior",
-    price:[300,10,10],
+    goldPrice: 300,
+    price:[10,10],
     scienceReq:3,
     projectReq:null,
     obsolete:null,
-    priceIndex:[0,1,2],
+    priceIndex:[0,1],
     index: 2,
     range: 0,
     melee: 3,
@@ -124,12 +131,14 @@ var warrior = {
     },
 }
 army.push(warrior)
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var archer = {
     id:"archer",
-    price:[300,10],
+    goldPrice: 300,
+    price:[10],
     obsolete:null,
-    priceIndex:[0,1],
+    priceIndex:[0],
     scienceReq:7,
     projectReq:null,
     index: 3,
@@ -151,5 +160,6 @@ var archer = {
     },
 }
 army.push(archer)
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export {army};

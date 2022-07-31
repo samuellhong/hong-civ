@@ -110,7 +110,7 @@ var project4 = {
         project4.element.parentNode.removeChild(project4.element);
         var loadGame = JSON.parse(localStorage.getItem("game"));
         loadGame.science-=project4.cost;
-        loadGame.farmerSpeed /= (Math.random()*0.3+1);
+        loadGame.farmerSpeed /= (Math.random()*0.3+1.2);
         localStorage.setItem("game",JSON.stringify(loadGame));
     },
 }
@@ -143,6 +143,32 @@ var project5 = {
     },
 }
 projects_.push(project5);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var project6 = {
+
+    id: "project6",
+    scienceReq: 3,
+    projectReq: null,
+    description: "Stone Picks & Axes",
+    description2: "Jacks and Miners Work Faster",
+    priceTag: "(420 science): ",
+    cost: 420,
+    flag: 0,
+    element: null,
+    trigger: function(){return triggerA(project6);},
+    effect: function(){
+        
+        project6.flag = 1;
+        project6.element.parentNode.removeChild(project6.element);
+        var loadGame = JSON.parse(localStorage.getItem("game"));
+        loadGame.science-=project6.cost;
+        loadGame.matSpeed /= (Math.random()*0.3+0.6)
+
+        localStorage.setItem("game",JSON.stringify(loadGame));
+    },
+}
+projects_.push(project6);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export {projects_};
