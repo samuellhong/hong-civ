@@ -1,13 +1,13 @@
-const varUnits = 4;
-const varBuildings = 5;
+const varUnits = 5;
+const varBuildings = 6;
 
 let game = {
 
-    money: 0,
+    money: 100000,
     population: 0,
     unusedPopulation: 0,
     stage: 0,
-    science: 0,
+    science: 100000,
     maxScience: 1000,
     loadScienceTime: 10000,
     land: 20,
@@ -99,10 +99,10 @@ let game = {
     stone:0,
     miningLand:0,
     unusedMiningLand:0,
-    materialPrice: [(Math.random()*4+2),(Math.random()*3+6)],
-    materialCount: [0,0],
-    materialWorkers: [0,0],
-    materialStorage: [50,50],
+    materialPrice: [13,18,40],
+    materialCount: [0,0,0],
+    materialWorkers: [0,0,0],
+    materialStorage: [50,50,10],
     matSpeed:7000,
     
 };

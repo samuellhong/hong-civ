@@ -52,7 +52,7 @@ var fighter = {
     price:[],
     scienceReq: 0,
     projectReq:null,
-    obsolete:9, /////MASONRY
+    obsolete:10, /////METALLURGY
     priceIndex:[],
     index: 0,
     range: 0,
@@ -160,6 +160,35 @@ var archer = {
     },
 }
 army.push(archer)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var axeman = {
+    id:"Axeman",
+    goldPrice: 300,
+    price:[10,20],
+    obsolete:null,
+    priceIndex:[0,1],
+    scienceReq:10,
+    projectReq:null,
+    index: 4,
+    range: 3,
+    melee: 4,
+    strength: 4,
+    iq: 2,
+    mobility:2,
+    element:null,
+    trigger: function(){
+        return trigger(axeman);
+    },
+    train: function(){
+        train(axeman);
+    },
+    trainEnemy:function(){
+        const power = axeman.range * (Math.random()+0.6+0.8) + axeman.melee * (Math.random()+0.2+0.9) +axeman.strength +axeman.iq * (Math.random()+0.6+0.8) +axeman.mobility * (Math.random()+0.2+0.4);
+        return power;
+    },
+}
+army.push(axeman)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export {army};

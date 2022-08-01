@@ -22,7 +22,7 @@ var tent = {
     id: "Tent",
     description: "[Houses 2 people; Occupies 1 Land]",
     scienceReq: 0,
-    obsolete: 3,
+    obsolete: 9,
     projectReq: null,
     goldPrice: 30,
     price:[],
@@ -196,7 +196,7 @@ var library = {
     obsolete: null,
     projectReq: null,
     goldPrice: 500,
-    price:[30],
+    price:[30], //30 stone
     priceIndex:[1],
     landSpace: 4,
     index: 4,
@@ -210,12 +210,65 @@ var library = {
         if(library.goldPrice> loadGame.money){
             return;
         }
+        for(let i = 0;i<library.price.length;i++){
+            if(library.price[i] > loadGame.materialCount[library.priceIndex[i]]){
+                return
+            }
+        }
         if(loadGame.unusedLand >0 && loadGame.manPower > library.manpower){
             loadGame.unusedLand -= 4;
             loadGame.buildingCount[library.index] += 1;
             loadGame.money -= library.goldPrice;
             loadGame.manPower -= library.manpower;
             loadGame.maxScience += 700;
+            for(let i = 0;i<library.price.length;i++){
+                library.materialCount[library.index[i]] -= library.price[i];
+            }
+        }
+        localStorage.setItem("game",JSON.stringify(loadGame));
+    },
+}
+
+buildings_.push(library)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var stoneWorks = {
+    id: "Stone Works",
+    description: "[Increase Max Stone&Wood&Ingot Storage; Occupies 8 Land]",
+    scienceReq: 9,
+    obsolete: null,
+    projectReq: null,
+    goldPrice: 800,
+    price:[50], //50 stone
+    priceIndex:[1],
+    landSpace: 8,
+    index: 5,
+    manpower: 400,
+    prev: null,
+    trigger: function(){
+        return triggerA(stoneWorks);
+    },
+    effect: function(){
+        var loadGame = JSON.parse(localStorage.getItem("game"));
+        if(stoneWorks.goldPrice> loadGame.money){
+            return;
+        }
+        for(let i = 0;i<stoneWorks.price.length;i++){
+            if(stoneWorks.price[i] > loadGame.materialCount[stoneWorks.priceIndex[i]]){
+                return
+            }
+        }
+        if(loadGame.unusedLand >0 && loadGame.manPower > stoneWorks.manpower){
+            loadGame.unusedLand -= 4;
+            loadGame.buildingCount[stoneWorks.index] += 1;
+            loadGame.money -= stoneWorks.goldPrice;
+            loadGame.manPower -= stoneWorks.manpower;
+            for(let i = 0;i<stoneWorks.price.length;i++){
+                loadGame.materialCount[stoneWorks.index[i]] -= stoneWorks.price[i];
+            }
+            loadGame.materialStorage[0] += 300;
+            loadGame.materialStorage[1] += 100;
+            loadGame.materialStorage[2] += 50;
         }
         localStorage.setItem("game",JSON.stringify(loadGame));
     },

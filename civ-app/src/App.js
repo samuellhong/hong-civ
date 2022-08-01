@@ -22,7 +22,7 @@ var scienceFlags = [];
 var militaryFlags = [];
 var projectsFlags = [];
 //localStorage.clear();
-if(false){
+if(true){
   localStorage.setItem("game",JSON.stringify(game));
 
   for(let i = 0; i<tech.length;i++){
@@ -707,7 +707,7 @@ const App = () =>{
     materialsDiv.appendChild(document.createTextNode(" "+loadGame.materialWorkers[t.index]));
     materialsDiv.appendChild(document.createElement("br"));
     materialsDiv.appendChild(document.createTextNode("Price: "+loadGame.materialPrice[t.index].toFixed(2)+"g"));
-    for(let i = 0;i< loadGame.materialCount[t.index].toString().length + 2;i++){
+    for(let i = 0;i< loadGame.materialCount[t.index].toString().length+1 ;i++){
       materialsDiv.appendChild(document.createTextNode('\u00A0\u00A0'))
     }
     
