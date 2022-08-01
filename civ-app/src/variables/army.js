@@ -22,7 +22,7 @@ function train(t){
         
         return;
     }
-    if(t.goldPrice > loadGame.money){
+    if(t.goldPrice > loadGame.money || t.housing > loadGame.militaryUnusedHousing){
         return
     }
     for(let i = 0;i<t.price.length;i++){
@@ -40,7 +40,7 @@ function train(t){
     loadGame.totalMilitaryPower += power;
     loadGame.militaryUnits[t.index] +=1;
     loadGame.militaryValues[t.index].push(power);
-    loadGame.militaryUnusedHousing -= 1;
+    loadGame.militaryUnusedHousing -= t.housing;
 
     localStorage.setItem("game",JSON.stringify(loadGame));
 }
@@ -48,6 +48,7 @@ function train(t){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var fighter = {
     id:"fighter",
+    housing:1,
     goldPrice: 50,
     price:[],
     scienceReq: 0,
@@ -77,6 +78,7 @@ army.push(fighter)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var slinger = {
     id:"slinger",
+    housing:1,
     scienceReq:0,
     projectReq:null,
     obsolete:7, //////ARCHERY
@@ -106,6 +108,7 @@ army.push(slinger)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var warrior = {
     id:"warrior",
+    housing:2,
     goldPrice: 300,
     price:[10,10],
     scienceReq:3,
@@ -135,6 +138,7 @@ army.push(warrior)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var archer = {
     id:"archer",
+    housing:2,
     goldPrice: 300,
     price:[10],
     obsolete:null,
@@ -162,15 +166,50 @@ var archer = {
 army.push(archer)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-var axeman = {
-    id:"Axeman",
-    goldPrice: 300,
-    price:[10,20],
+var charioteer = {
+    id:"charioteer",
+    housing:3,
+    goldPrice: 500,
+    price:[],
     obsolete:null,
-    priceIndex:[0,1],
-    scienceReq:10,
+    priceIndex:[],
+    scienceReq:8,
     projectReq:null,
     index: 4,
+    range: 4,
+    melee: 4,
+    strength: 4,
+    iq: 4,
+    mobility: 4,
+    element:null,
+    horse: 1,
+    trigger: function(){
+        return trigger(charioteer);
+    },
+    train: function(){
+        var loadGame = JSON.parse(localStorage.getItem("game"));
+        if(loadGame.livestockCount[2] >charioteer.horse){
+            train(charioteer);
+        }
+    },
+    trainEnemy:function(){
+        const power = charioteer.range * (Math.random()+0.6+0.8) + charioteer.melee * (Math.random()+0.2+0.9) +charioteer.strength +charioteer.iq * (Math.random()+0.6+0.8) +charioteer.mobility * (Math.random()+0.2+0.4);
+        return power;
+    },
+}
+army.push(charioteer)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var axeman = {
+    id:"axeman",
+    housing:2,
+    goldPrice: 500,
+    price:[10,10],
+    obsolete:null,
+    priceIndex:[0,2],
+    scienceReq:10,
+    projectReq:null,
+    index: 5,
     range: 3,
     melee: 4,
     strength: 4,

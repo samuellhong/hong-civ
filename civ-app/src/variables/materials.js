@@ -69,14 +69,14 @@ materials_.push(stone);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var ingot = {
 
-    id: "Ingot",
+    id: "Alloy",
     scienceReq: 10,
     projectReq: null,
     index: 2,
     trigger: function(){
         return triggerA(ingot);
     },
-    occ: "Miner & Caster",
+    occ: "Smith",
     occPrice: 800,
     buy: function(){
         buy(ingot);

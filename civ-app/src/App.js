@@ -49,7 +49,7 @@ var breedIntervals = [null,null];
 var matIntervals = [null,null];
 var builderInterval;
 var fightInterval;
-const resourceString = ["wood", "stone"];
+const resourceString = ["wood", "stone","alloy"];
   
 if (localStorage.getItem("game") === null){
   localStorage.setItem("game",JSON.stringify(game));
@@ -645,7 +645,7 @@ const App = () =>{
     animalsDiv.appendChild(document.createElement("br"));
     animalsDiv.appendChild(document.createTextNode("Price: "+loadGame.livestockPrice[t.index].toFixed(2)+"g"))
     var herdersDiv = document.getElementById("herdersDiv");
-    herdersDiv.appendChild(document.createTextNode(t.id+ " Herders "));
+    herdersDiv.appendChild(document.createTextNode(t.occ+" "));
     var dec = document.createElement("button");
     dec.appendChild(document.createTextNode("-"));
     dec.onclick = (function(){
@@ -1015,6 +1015,9 @@ const App = () =>{
     tempdiv.appendChild(document.createElement("br"));
     tempdiv.appendChild(document.createTextNode("Price: "));
     tempdiv.appendChild(document.createTextNode(t.goldPrice+"g; "));
+    if(t.horse){
+      tempdiv.appendChild(document.createTextNode(t.horse+"horses; "));
+    }
     for(let i =0; i<t.price.length; i++){
       tempdiv.appendChild(document.createTextNode(t.price[i]));
       tempdiv.appendChild(document.createTextNode(resourceString[t.priceIndex[i]]+"; "));
@@ -1060,12 +1063,18 @@ const App = () =>{
         if(military[i].trigger() || loadGame.militaryUnits[i]>0 || loadGame.currentMilitaryUnits[i]>0){
           var span1 = document.createElement(("span"));
           span1.textContent = military[i].id+": "+loadGame.currentMilitaryUnits[i];
-          span1.setAttribute("style","margin-left: 10%;color: blue");
+          span1.setAttribute("style","margin-left: 5%;color: blue");
           warDiv.appendChild(span1);
           var span = document.createElement(("span"));
           span.textContent = loadGame.enemyMilitaryUnits[i] + ": " +military[i].id;
-          span.setAttribute("style","margin-left: 37%;color: red");
+          for(let j = 0;j< 20-military[i].id.length; j++){
+            warDiv.appendChild(document.createTextNode('\u00A0'))
+          }
+          span.setAttribute("style","color: red");
           warDiv.appendChild(span);
+          
+          
+          //warDiv.appendChild(span);
           warDiv.appendChild(document.createElement("br"));
         }
       } 
@@ -1197,7 +1206,7 @@ const App = () =>{
     saveVar();
   }
   function createWildAnimal(){
-    var animalColors = ["#fff8dc","#66422D"]
+    var animalColors = ["#fff8dc","#66422D","#FFF416"]
     var top = Math.random();
     var left = Math.random();
     if(top <0.5){
@@ -1216,7 +1225,7 @@ const App = () =>{
       startY = Math.random()*10+150
       rateY = Math.random()*-1.8+0.1;
     }
-    wildAnimal = Math.floor(Math.random()*2);
+    wildAnimal = Math.floor(Math.random()*3);
     color = animalColors[wildAnimal];
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1579,7 +1588,7 @@ const App = () =>{
           number = Math.floor(Math.random()*4+1);
         }
         else{
-          number = Math.floor(Math.random()*(2*loadGame.currentMilitaryUnits[i])+1);
+          number = Math.floor(Math.random()*(1.5*loadGame.currentMilitaryUnits[i]));
         }
         loadGame.enemyMilitaryUnits[i] = number;
         for(let j = 0; j<number; j++){
@@ -1689,7 +1698,7 @@ const App = () =>{
       enemyStrength *= lost;
       loadGame.currentMilitaryUnits[fighter2] -= 1
       loadGame.enemyMilitaryValues[fighter1].push(enemyStrength)
-      loadGame.militaryUnusedHousing += 1;
+      loadGame.militaryUnusedHousing += military[fighter2].housing;
     }
     else{
       lost = Math.random()*odd2 + 0.01;

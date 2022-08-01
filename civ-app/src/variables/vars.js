@@ -1,5 +1,6 @@
-const varUnits = 5;
+const varUnits = 6;
 const varBuildings = 6;
+var varLivestock = 4;
 
 let game = {
 
@@ -55,16 +56,16 @@ let game = {
 
     traderSpeed: 4,
 
-    livestockCount:[0,0],
-    livestockPrice: [(Math.random()*15+15),(Math.random()*15+20),(Math.random()*20+25)],
-    livestockBreedChance:[0.1,0.1],
+    livestockCount:Array(varLivestock).fill(0),
+    livestockPrice: [(Math.random()*15+15),(Math.random()*15+20),(Math.random()*20+25),(Math.random()*10+10)],
+    livestockBreedChance:[0.1,0.1,0.1,0.1],
     totalHerders:0,
     unusedHerders: 0,
-    herderCount:[0,0],
+    herderCount:Array(varLivestock).fill(0),
     herderPrice: 400,
     breedSpeed: 10,
     keepLivestock: 5,
-    storedMeat:[0,0],
+    storedMeat:Array(varLivestock).fill(0),
     livestockTraders: 0,
     livestockTraderStatus:0,
 

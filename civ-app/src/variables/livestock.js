@@ -29,6 +29,7 @@ var sheep = {
     projectReq: null,
     index: 0,
     feed: 10,
+    occ: "Sheep Herders",
     trigger: function(){
         return triggerA(sheep);
     },
@@ -45,6 +46,7 @@ var cattle = {
     projectReq: null,
     index: 1,
     feed: 15,
+    occ: "Cattle Herders",
     trigger: function(){
         return triggerA(cattle);
     },
@@ -52,5 +54,39 @@ var cattle = {
     sell: function(){sellLivestock(cattle.index)},
 }
 livestock_.push(cattle);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var horse = {
+    id: "Horse",
+    meat: "Beef",
+    scienceReq: 7,
+    projectReq: null,
+    index: 2,
+    feed: 15,
+    occ: "Horse Breeders",
+    trigger: function(){
+        return triggerA(horse);
+    },
+    price: [25,30],
+    sell: function(){sellLivestock(horse.index)},
+}
+livestock_.push(horse);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var fish = {
+    id: "Fish",
+    meat: "Fish",
+    scienceReq: 7,
+    projectReq: null,
+    index: 3,
+    feed: 7,
+    occ: "Fishermen",
+    trigger: function(){
+        return triggerA(fish);
+    },
+    price: [10,10],
+    sell: function(){sellLivestock(fish.index)},
+}
+livestock_.push(fish);
 
 export {livestock_};
