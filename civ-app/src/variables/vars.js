@@ -4,11 +4,11 @@ var varLivestock = 4;
 
 let game = {
 
-    money: 100000,
+    money: 0,
     population: 0,
     unusedPopulation: 0,
     stage: 0,
-    science: 100000,
+    science: 0,
     maxScience: 1000,
     loadScienceTime: 10000,
     land: 20,
@@ -57,7 +57,7 @@ let game = {
     traderSpeed: 4,
 
     livestockCount:Array(varLivestock).fill(0),
-    livestockPrice: [(Math.random()*15+15),(Math.random()*15+20),(Math.random()*20+25),(Math.random()*10+10)],
+    livestockPrice: [(Math.random()*15+15),(Math.random()*15+20),(Math.random()*20+25),(Math.random()*5+5)],
     livestockBreedChance:[0.1,0.1,0.1,0.1],
     totalHerders:0,
     unusedHerders: 0,

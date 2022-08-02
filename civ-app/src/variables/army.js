@@ -41,6 +41,7 @@ function train(t){
     loadGame.militaryUnits[t.index] +=1;
     loadGame.militaryValues[t.index].push(power);
     loadGame.militaryUnusedHousing -= t.housing;
+    loadGame.livestockCount[2] -= t.horse;
 
     localStorage.setItem("game",JSON.stringify(loadGame));
 }
@@ -62,6 +63,7 @@ var fighter = {
     iq:1,
     mobility:2,
     element:null,
+    horse: 0,
     trigger: function(){
         return trigger(fighter);
     },
@@ -92,6 +94,7 @@ var slinger = {
     iq:1,
     mobility:2,
     element:null,
+    horse: 0,
     trigger: function(){
         return trigger(slinger);
     },
@@ -122,6 +125,7 @@ var warrior = {
     iq:1,
     mobility:4,
     element:null,
+    horse: 0,
     trigger: function(){
         return trigger(warrior);
     },
@@ -152,6 +156,7 @@ var archer = {
     iq: 3,
     mobility:2,
     element:null,
+    horse: 0,
     trigger: function(){
         return trigger(archer);
     },
@@ -188,7 +193,7 @@ var charioteer = {
     },
     train: function(){
         var loadGame = JSON.parse(localStorage.getItem("game"));
-        if(loadGame.livestockCount[2] >charioteer.horse){
+        if(loadGame.livestockCount[2] >=charioteer.horse){
             train(charioteer);
         }
     },
@@ -216,6 +221,7 @@ var axeman = {
     iq: 2,
     mobility:2,
     element:null,
+    horse: 0,
     trigger: function(){
         return trigger(axeman);
     },

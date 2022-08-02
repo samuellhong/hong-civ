@@ -88,6 +88,7 @@
   overflow-y: scroll;
   position:relative;
   float:left;
+  border: ridge;
 }
 #livestockConfigDiv{
   font-weight: 400;
@@ -103,7 +104,7 @@
   height: 120px;
   width: 100%;
   overflow-y: scroll;
-  
+  border:ridge;
 }
 #livestockTraderDiv{
   font-weight: 400;

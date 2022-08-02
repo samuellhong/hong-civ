@@ -29,6 +29,7 @@ var sheep = {
     projectReq: null,
     index: 0,
     feed: 10,
+    breed: true,
     occ: "Sheep Herders",
     trigger: function(){
         return triggerA(sheep);
@@ -46,6 +47,7 @@ var cattle = {
     projectReq: null,
     index: 1,
     feed: 15,
+    breed: true,
     occ: "Cattle Herders",
     trigger: function(){
         return triggerA(cattle);
@@ -59,10 +61,11 @@ livestock_.push(cattle);
 var horse = {
     id: "Horse",
     meat: "Beef",
-    scienceReq: 7,
+    scienceReq: 7, //archery
     projectReq: null,
     index: 2,
     feed: 15,
+    breed: true,
     occ: "Horse Breeders",
     trigger: function(){
         return triggerA(horse);
@@ -76,15 +79,16 @@ livestock_.push(horse);
 var fish = {
     id: "Fish",
     meat: "Fish",
-    scienceReq: 7,
+    scienceReq: 5,//sailing
     projectReq: null,
     index: 3,
-    feed: 7,
+    feed: 5,
+    breed: false,
     occ: "Fishermen",
     trigger: function(){
         return triggerA(fish);
     },
-    price: [10,10],
+    price: [5,5],
     sell: function(){sellLivestock(fish.index)},
 }
 livestock_.push(fish);
