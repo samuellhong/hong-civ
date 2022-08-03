@@ -110,7 +110,7 @@ var granary = {
     landSpace: 2,
     index: 2,
     prev:null,
-    manpower: 50,
+    manpower: 100,
     trigger: function(){
         return triggerA(granary);
     },

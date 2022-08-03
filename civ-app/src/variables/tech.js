@@ -157,7 +157,7 @@ var archery = {
     priceTag: "(900 science): ",
     flag: 0,
     index: 7,
-    description: "Unlock Archers",
+    description: "Unlock Archers; Unlock Horses",
     trigger: function(){return triggerA(archery);},
     element: null,
     cost: 900,

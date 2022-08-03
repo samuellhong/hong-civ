@@ -31,6 +31,7 @@ var sheep = {
     feed: 10,
     breed: true,
     occ: "Sheep Herders",
+    edible: true,
     trigger: function(){
         return triggerA(sheep);
     },
@@ -49,6 +50,7 @@ var cattle = {
     feed: 15,
     breed: true,
     occ: "Cattle Herders",
+    edible: true,
     trigger: function(){
         return triggerA(cattle);
     },
@@ -67,6 +69,7 @@ var horse = {
     feed: 15,
     breed: true,
     occ: "Horse Breeders",
+    edible: false,
     trigger: function(){
         return triggerA(horse);
     },
@@ -85,6 +88,7 @@ var fish = {
     feed: 5,
     breed: false,
     occ: "Fishermen",
+    edible: true,
     trigger: function(){
         return triggerA(fish);
     },
@@ -92,5 +96,23 @@ var fish = {
     sell: function(){sellLivestock(fish.index)},
 }
 livestock_.push(fish);
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var deer = {
+    id: "Deer",
+    meat: "Venison",
+    scienceReq: 6,//hunting
+    projectReq: null,
+    index: 4,
+    feed: 5,
+    breed: false,
+    occ: "Hunter",
+    edible: true,
+    trigger: function(){
+        return triggerA(deer);
+    },
+    price: [25,30],
+    sell: function(){sellLivestock(deer.index)},
+}
+livestock_.push(deer);
 export {livestock_};

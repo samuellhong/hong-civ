@@ -1,4 +1,4 @@
-var crops_ = []
+var crops_ = [];
 
 function triggerA(t){
     var sFlag = JSON.parse(localStorage.getItem("scienceFlags"));
@@ -26,14 +26,14 @@ function growCrop(i){
     if(loadGame.seedsCount[i] > 0 && loadGame.unusedFarmLand > 0){
         loadGame.seedsCount[i] -= 1;
         if(Math.random() < loadGame.cropGrowChance[i]){
-            loadGame.cropCount[i] += 1;
+            loadGame.cropCount[i] += loadGame.cropMultiplier;
             loadGame.unusedFarmLand -=1;
             if(loadGame.cropCount[i]>loadGame.keepCrop && loadGame.cropStorageSpace > 0){
-                loadGame.storedCrops[i] +=1;
-                loadGame.cropCount[i] -= 1;
+                loadGame.storedCrops[i] +=loadGame.cropMultiplier;
+                loadGame.cropCount[i] -= loadGame.cropMultiplier;
                 loadGame.unusedFarmLand +=1;
-                loadGame.cropStorageSpace -=1;
-                loadGame.storedFood += 1;
+                loadGame.cropStorageSpace -=loadGame.cropMultiplier;
+                loadGame.storedFood += loadGame.cropMultiplier;
             }
         }
     }
@@ -42,8 +42,12 @@ function growCrop(i){
 function sellCrop(i){
     var loadGame = JSON.parse(localStorage.getItem("game"));
     if(loadGame.cropCount[i] > 0){
-        loadGame.cropCount[i] -= 1;
-        loadGame.money += loadGame.cropSell[i];
+        loadGame.cropCount[i] -= loadGame.cropMultiplier;
+        if(loadGame.cropCount[i]<0){
+            loadGame.money -= loadGame.cropSell[i]*(0-loadGame.cropCount[i]);
+            loadGame.cropCount[i] = 0;
+        }
+        loadGame.money += loadGame.cropSell[i]*loadGame.cropMultiplier;
         loadGame.unusedFarmLand +=1;
     }
     localStorage.setItem("game",JSON.stringify(loadGame));
@@ -152,6 +156,41 @@ var melon = {
 }
 
 crops_.push(melon);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var beans = {
+
+    id: "Bean",
+    scienceReq: 0,
+    projectReq: 8,
+    growChance: 0.5,
+    seedCost: (Math.random()*3+1.01),
+    sellPrice:(Math.random()*6+3.01),
+    flag: 0,
+    index: 3,
+    element: null,
+    generatePrice: function(){
+        beans.seedCost = (Math.random()*3+1.01);
+        return beans.seedCost;
+    },
+    buySeed: function(){
+        buySeed(3);
+    },
+    growCrop: function(){
+        growCrop(3);
+    },
+    sellCrop: function(){
+        sellCrop(3);
+    },
+    trigger: function(){
+        return triggerA(beans);
+    },
+    feed:2,
+    cropMult:[6,3.01],
+    seedMult:[3,1.01],
+}
+
+crops_.push(beans);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export {crops_};

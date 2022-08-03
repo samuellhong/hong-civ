@@ -152,8 +152,8 @@ var project6 = {
     projectReq: null,
     description: "Stone Picks & Axes",
     description2: "Jacks and Miners Work Faster",
-    priceTag: "(420 science): ",
-    cost: 420,
+    priceTag: "(380 science): ",
+    cost: 380,
     flag: 0,
     element: null,
     trigger: function(){return triggerA(project6);},
@@ -169,6 +169,80 @@ var project6 = {
     },
 }
 projects_.push(project6);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var project7 = {
+
+    id: "project7",
+    scienceReq: 3,
+    projectReq: 1,
+    description: "Stone Sickles & Hoes",
+    description2: "Increase Seed Growth Chance",
+    priceTag: "(380 science): ",
+    cost: 380,
+    flag: 0,
+    element: null,
+    trigger: function(){return triggerA(project7);},
+    effect: function(){
+        project7.flag = 1;
+        project7.element.parentNode.removeChild(project7.element);
+        var loadGame = JSON.parse(localStorage.getItem("game"));
+        loadGame.science-=project7.cost;
+        for(let i = 0; i<loadGame.cropGrowChance.length;i++){
+            loadGame.cropGrowChance[i] *= (Math.random()*0.4+1)
+        }
+        localStorage.setItem("game",JSON.stringify(loadGame));
+    },
+}
+projects_.push(project7);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var project8 = {
+
+    id: "project8",
+    scienceReq: 5, //sailing
+    projectReq: null,
+    description: "Dead Fish Fertilizer",
+    description2: "More Crops per Harvest",
+    priceTag: "(720 science): ",
+    cost: 720,
+    flag: 0,
+    element: null,
+    trigger: function(){return triggerA(project8);},
+    effect: function(){
+        project8.flag = 1;
+        project8.element.parentNode.removeChild(project8.element);
+        var loadGame = JSON.parse(localStorage.getItem("game"));
+        loadGame.science-=project8.cost;
+        loadGame.cropMultiplier += 1;
+        localStorage.setItem("game",JSON.stringify(loadGame));
+    },
+}
+projects_.push(project8);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var project9 = {
+
+    id: "project9",
+    scienceReq: 6, //hunting
+    projectReq: null,
+    description: "Find Beans",
+    description2: "You can now grow Beans",
+    priceTag: "(720 science): ",
+    cost: 720,
+    flag: 0,
+    element: null,
+    trigger: function(){return triggerA(project9);},
+    effect: function(){
+        project9.flag = 1;
+        project9.element.parentNode.removeChild(project9.element);
+        var loadGame = JSON.parse(localStorage.getItem("game"));
+        loadGame.science-=project9.cost;
+        loadGame.cropMultiplier += 1;
+        localStorage.setItem("game",JSON.stringify(loadGame));
+    },
+}
+projects_.push(project9);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export {projects_};

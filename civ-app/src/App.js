@@ -22,7 +22,7 @@ var scienceFlags = [];
 var militaryFlags = [];
 var projectsFlags = [];
 //localStorage.clear();
-if(true){
+if(false){
   localStorage.setItem("game",JSON.stringify(game));
 
   for(let i = 0; i<tech.length;i++){
@@ -41,12 +41,12 @@ if(true){
 var cropTraderInterval;
 var livestockTraderInterval;
 var scienceInterval;
-var growIntervals = [null,null,null];
-var seedPriceIntervals = [null,null,null];
-var cropPriceIntervals = [null,null,null];
-var livestockPriceIntervals = [null,null,null,null];
-var breedIntervals = [null,null,null];
-var matIntervals = [null,null];
+var growIntervals = Array(crops.length).fill(null);
+var seedPriceIntervals = Array(crops.length).fill(null);
+var cropPriceIntervals = Array(crops.length).fill(null);
+var livestockPriceIntervals = Array(livestock.length).fill(null);
+var breedIntervals = Array(livestock.length).fill(null);
+var matIntervals = Array(materials.length).fill(null);
 var builderInterval;
 var fightInterval;
 const resourceString = ["wood", "stone","alloy"];
@@ -86,7 +86,11 @@ var gameStart = 0;
 const App = () =>{
   
   function saveVar(){
+
+      
+    
     if(loadGame.hungryStatus ===0){
+      
       loadGame.scienceInt = loadGame.population;
     }
     else{
@@ -98,6 +102,9 @@ const App = () =>{
       status=1;
     }
     if (gameStart ===0){
+      setInterval(()=>{
+        loadGame.money += loadGame.goldPerTurn;
+      },5000);
       /* eslint-disable no-unused-vars */
       loadGame.inFight = false;
       loadGame.foundFight = false;
@@ -122,9 +129,10 @@ const App = () =>{
         if(scienceFlags[livestock[i].scienceReq] ===2){
           livestockPriceIntervals[i] = setInterval(()=>{
             createLivestockPriceInterval(i);
-            addBreedInterval(i);
+            
           },(Math.random()*3+10)*1000)
         }
+        addBreedInterval(i);
       }
       for(let i = 0;i<materials.length;i++){
         if(scienceFlags[materials[i].scienceReq] ===2){
@@ -191,7 +199,7 @@ const App = () =>{
         saveVar();
         return;
       }
-      var odds = [totalCrops/totalCrops+totalMeat, totalMeat/totalCrops+totalMeat];
+      var odds = [totalCrops/(totalCrops+totalMeat), totalMeat/(totalCrops+totalMeat)];
       if(Math.random() < odds[0]){
         var odds2 = [];
         for(let i = 0; i<crops.length; i++){
@@ -727,7 +735,7 @@ const App = () =>{
     foodDiv.appendChild(document.createElement("br"));
     var tracker = 1;
     for(let i = 0;i<crops.length;i++){
-      if(crops[i].scienceReq === null || scienceFlags[crops[i].scienceReq]===2){
+      if(crops[i].trigger()){
         foodDiv.appendChild(document.createTextNode(crops[i].id+" ("+crops[i].feed+"): "+loadGame.storedCrops[i]));
         for (let j =crops[i].id.length+loadGame.storedCrops[i].toString().length+2;j<13;j++){
           foodDiv.appendChild(document.createTextNode('\u00A0'))
@@ -738,8 +746,9 @@ const App = () =>{
         tracker+=1;
       }
     }
+    foodDiv.appendChild(document.createElement("br"));
     for(let i = 0;i<livestock.length;i++){
-      if(livestock[i].scienceReq ===null || scienceFlags[livestock[i].scienceReq]===2){
+      if((livestock[i].scienceReq ===null || scienceFlags[livestock[i].scienceReq]===2)&& livestock[i].edible === true){
         foodDiv.appendChild(document.createTextNode(livestock[i].meat+" ("+livestock[i].feed+"): "+loadGame.storedMeat[i]));
         for (let j =livestock[i].id.length+loadGame.storedMeat[i].toString().length+2;j<11;j++){
           foodDiv.appendChild(document.createTextNode('\u00A0'))
@@ -1191,19 +1200,21 @@ const App = () =>{
       window.cancelAnimationFrame(anId);
       anId = true;
       canvas.getContext('2d').clearRect(0,0,canvas.width, canvas.height);
-      getWildAnimal(wildAnimal);
+      if(livestock[wildAnimal].trigger()){
+        getWildAnimal(wildAnimal);
+      }
       saveVar();
       setTimeout(() => {beginWildAnimals();}, (Math.random()*5+5)*1000);
       
     }
   }
   function getWildAnimal(i){
-    if(loadGame.livestockCount[i] + 1>loadGame.keepLivestock){
+    if(loadGame.livestockCount[i] + 1>loadGame.keepLivestock && loadGame.meatStorageSpace > 0){
       loadGame.storedMeat[i] +=1;
       loadGame.meatStorageSpace -= 1;
       loadGame.storedFood += 1;
     }
-    else{
+    else if(loadGame.unusedLivestockLand > 0){
       loadGame.livestockCount[i] += 1;
       loadGame.unusedLivestockLand -= 1;
     }
@@ -1292,7 +1303,7 @@ const App = () =>{
   }
 
   function addCropTInterval(){
-    if(loadGame.cropTraders <= 0){
+    if(loadGame.cropTraders <= 0 || loadGame.cropTraderStatus ===0){
       cropTraderInterval = setInterval(() => {},loadGame.traderSpeed * 1000/(loadGame.cropTraders));
     }
     else{
@@ -1315,12 +1326,20 @@ const App = () =>{
     
     var totalCrops = 0;
     for(let i =0;i<crops.length;i++){
-      totalCrops += loadGame.cropCount[i];
+      if(loadGame.cropCount[i] > loadGame.keepCrop){
+        totalCrops += loadGame.cropCount[i];
+      }
     }
     if (totalCrops > 0){
       var odds = []
       for(let i =0;i<crops.length;i++){
-        odds.push(loadGame.cropCount[i]/totalCrops)
+        if(loadGame.cropCount[i] <= loadGame.keepCrop){
+          odds.push(0);
+        }
+        else{
+          odds.push(loadGame.cropCount[i]/totalCrops)
+        }
+        
       }
       const chance = Math.random();
       var sum = 0;
@@ -1440,8 +1459,8 @@ const App = () =>{
             var tries = parseInt(loadGame.livestockCount[i]/2);
             var chance;
             for(let j = 0; j<tries;j++){
-              chance = Math.random()
-              if (chance < loadGame.livestockBreedChance[i] && loadGame.unusedLivestockLand > 0){
+              chance = Math.random();
+              if (chance < loadGame.livestockBreedChance[i] && loadGame.unusedLivestockLand > 0 && livestock[i].edible){
                 if(loadGame.meatStorageSpace > 0 && loadGame.livestockCount[i]+1 > loadGame.keepLivestock){
                   loadGame.storedMeat[i] += 1;
                   loadGame.storedFood += 1;
@@ -1455,13 +1474,15 @@ const App = () =>{
             }
           }
           else if(livestock[i].breed === false){
-            if(loadGame.meatStorageSpace > 0 && loadGame.livestockCount[i]+1 > loadGame.keepLivestock){
-              loadGame.storedMeat[i] += 1;
-              loadGame.storedFood += 1;
-              loadGame.meatStorageSpace -= 1;
-            }
-            else{
-              loadGame.livestockCount[i] += 1;
+            if(Math.random() < loadGame.livestockBreedChance[i]){
+              if(loadGame.meatStorageSpace > 0 && loadGame.livestockCount[i]+1 > loadGame.keepLivestock && livestock[i].edible){
+                loadGame.storedMeat[i] += 1;
+                loadGame.storedFood += 1;
+                loadGame.meatStorageSpace -= 1;
+              }
+              else{
+                loadGame.livestockCount[i] += 1;
+              }
             }
           }
         }
@@ -1620,7 +1641,7 @@ const App = () =>{
       sum2 += loadGame.enemyMilitaryUnits[i];
     }
     
-    loadGame.goldPrize = sum2/sum1 * (Math.abs(sum2-sum1)+1) * 10 *(Math.random()*0.4+0.8)*sum1 + 200;
+    loadGame.goldPrize = sum2/sum1 * (Math.abs(sum2-sum1)+1) * 10 *(Math.random()*0.2+0.4)*loadGame.currentMilitaryPower + 200;
     loadGame.landPrize = Math.ceil(sum2/sum1 * Math.abs(sum2-sum1) * 0.5*(Math.random()*0.4+0.8)+(Math.floor(Math.random()*5)));
     loadGame.captives = Math.floor(sum2 * Math.random()*0.5+0.01);
     
