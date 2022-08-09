@@ -9,7 +9,7 @@ import {materials_} from './variables/materials.js';
 import {projects_} from './variables/projects.js';
 import {buildings_} from './variables/buildings.js';
 import Header from './components/Header';
-
+console.log(1);
 var projects = projects_;
 var crops = crops_;
 var tech = techs;
